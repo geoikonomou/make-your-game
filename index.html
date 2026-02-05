@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Arkanoid - Main Menu</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="./src/css/menu.css">
+    </head>
+    <body>
+        <div class="container">
+            <!-- Main Menu -->
+            <div class="main-menu" id="mainMenu">
+                <h1 class="game-title">ARKANOID</h1>
+                <div class="menu-buttons">
+                    <button class="menu-btn" id="playBtn">Play Game</button>
+                    <button class="menu-btn" id="selectLevelBtn">Select Level</button>
+                    <button class="menu-btn" id="optionsBtn">Options</button>
+                </div>
+            </div>
+           
+            <!-- Level Selection -->
+            <div class="screen hidden" id="levelScreen">
+                <h2>Select Level</h2>
+                <div class="level-grid">
+                    <button class="level-btn" data-level="1">Level 1</button>
+                    <button class="level-btn" data-level="2">Level 2</button>
+                    <button class="level-btn" data-level="3">Level 3</button>
+                    <button class="level-btn" data-level="4">Level 4</button>
+                </div>
+                <button class="back-btn" onclick="showScreen('menu')">Back to Menu</button>
+            </div>
+
+            <div class="screen hidden" id="optionsScreen">
+                <h2>Options</h2>
+                    <div class="options-content">
+                        <div class="option-item">
+                            <button class="menu-btn" id="muteButton">🔊 Unmuted</button>
+                        </div>
+
+                        <div class="option-item">
+                            <label for="masterVolume">Master Volume</label>
+                            <div class="volume-control">
+                                <input type="range" id="masterVolume" min="0" max="100" value="70">
+                                <span class="volume-value" id="masterValue">70%</span>
+                            </div>
+                        </div>
+
+                    <div class="option-item">
+                        <label for="musicVolume">Music Volume</label>
+                        <div class="volume-control">
+                            <input type="range" id="musicVolume" min="0" max="100" value="50">
+                            <span class="volume-value" id="musicValue">50%</span>
+                        </div>
+                    </div>
+
+                    <div class="option-item">
+                        <label for="sfxVolume">Sound Effects</label>
+                        <div class="volume-control">
+                            <input type="range" id="sfxVolume" min="0" max="100" value="80">
+                            <span class="volume-value" id="sfxValue">80%</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="back-btn" onclick="showScreen('menu')">Back to Menu</button>
+            </div>
+
+             <!-- Game Screen Placeholder -->
+            <div class="screen hidden" id="gameScreen">
+                <h2>Level <span id="currentLevel">1</span></h2>
+                <div class="game-area">
+                    <p>Game starts here...</p>
+                </div>
+                <button class="back-btn" onclick="showScreen('menu')">Back to Menu</button>
+            </div>
+        </div>
+
+        <script type="module" src="src/js/main.js"></script>
+    </body>
+</html>
