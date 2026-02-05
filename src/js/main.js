@@ -63,6 +63,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Mute Button
+    const muteButton = document.getElementById('muteButton');
+    muteButton.addEventListener('click', function() {
+        const isMuted = audioManager.toggleMute();
+        this.textContent = isMuted ? '🔇 Muted' : '🔊 Unmuted';
+    });
+
     // Volume Controls
     document.getElementById('masterVolume').addEventListener('input', function() {
         audioManager.setMasterVolume(this.value);

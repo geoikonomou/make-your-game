@@ -35,14 +35,18 @@
 
             <div class="screen hidden" id="optionsScreen">
                 <h2>Options</h2>
-                <div class="options-content">
-                    <div class="option-item">
-                        <label for="masterVolume">Master Volume</label>
-                        <div class="volume-control">
-                            <input type="range" id="masterVolume" min="0" max="100" value="70">
-                            <span class="volume-value" id="masterValue">70%</span>
+                    <div class="options-content">
+                        <div class="option-item">
+                            <button class="menu-btn" id="muteButton">🔊 Unmuted</button>
                         </div>
-                    </div>
+
+                        <div class="option-item">
+                            <label for="masterVolume">Master Volume</label>
+                            <div class="volume-control">
+                                <input type="range" id="masterVolume" min="0" max="100" value="70">
+                                <span class="volume-value" id="masterValue">70%</span>
+                            </div>
+                        </div>
 
                     <div class="option-item">
                         <label for="musicVolume">Music Volume</label>
