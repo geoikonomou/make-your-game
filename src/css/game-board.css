@@ -188,29 +188,40 @@
 }
 
 /* Animations */
+
+/**
+ * Brick Hit Animation
+ * IMPORTANT: Only use scale() without translate()
+ * The brick's position is maintained by inline transform: translate()
+ * So we animate ONLY the scale property using transform-origin
+ */
 @keyframes brickHit {
   0% {
-    transform: scale(1);
+    transform: var(--brick-position) scale(1);
   }
   50% {
-    transform: scale(1.1);
+    transform: var(--brick-position) scale(1.1);
   }
   100% {
-    transform: scale(1);
+    transform: var(--brick-position) scale(1);
   }
 }
 
+/**
+ * Brick Destroy Animation
+ * Uses opacity and scale while maintaining position
+ */
 @keyframes brickDestroy {
   0% {
-    transform: scale(1);
+    transform: var(--brick-position) rotate(0deg);
     opacity: 1;
   }
   50% {
-    transform: scale(1.2) rotate(10deg);
+    transform: var(--brick-position) rotate(10deg);
     opacity: 0.5;
   }
   100% {
-    transform: scale(0.5) rotate(20deg);
+    transform: var(--brick-position) rotate(20deg);
     opacity: 0;
   }
 }

@@ -65,7 +65,11 @@ export class Brick {
     const x = offsetLeft + this.col * (width + padding);
     const y = offsetTop + this.row * (height + padding);
 
-    this.element.style.transform = `translate(${x}px, ${y}px)`;
+    // Set the position as both transform AND CSS variable
+    // The CSS variable is used by animations to maintain position
+    const translateValue = `translate(${x}px, ${y}px)`;
+    this.element.style.transform = translateValue;
+    this.element.style.setProperty("--brick-position", translateValue);
   }
 
   /**
@@ -120,7 +124,7 @@ export class Brick {
    */
   destroy() {
     this.active = false;
-    this.element.style.opacity = "0";
+    this.element.classList.add("brick-destroying");
 
     setTimeout(() => {
       if (this.element.parentNode) {

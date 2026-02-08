@@ -19,25 +19,63 @@ document.addEventListener("DOMContentLoaded", function () {
   const bricksContainer = document.getElementById("bricksContainer");
   const levelDisplay = document.getElementById("levelDisplay");
 
+  // --- Game state ---
+  let currentBricks = [];
+  let currentLevel = 1;
+
   // --- Utility: Start a level ---
   function startLevel(levelNumber) {
+    currentLevel = levelNumber;
+
     // Clear existing bricks
     bricksContainer.innerHTML = "";
+    currentBricks = [];
 
-    // Calculate layout
+    // Calculate layout based on container width
     const layout = BrickLayoutSystem.calculate(container.offsetWidth);
 
     // Create bricks
     const bricks = LevelSystem.createBricks(levelNumber, layout);
+    currentBricks = bricks;
 
-    // Append to DOM
+    // Append to DOM using DocumentFragment for performance
+    const fragment = document.createDocumentFragment();
     bricks.forEach((brick) => {
-      bricksContainer.appendChild(brick.element);
+      fragment.appendChild(brick.element);
     });
+    bricksContainer.appendChild(fragment);
 
     // Update level display
     levelDisplay.textContent = levelNumber;
+
+    console.log(`Level ${levelNumber} loaded: ${bricks.length} bricks`);
   }
+
+  // --- Handle window resize ---
+  let resizeTimeout;
+  function handleResize() {
+    if (currentBricks.length === 0) return;
+
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      // Recalculate layout
+      const layout = BrickLayoutSystem.calculate(container.offsetWidth);
+
+      // Update all bricks with new layout
+      currentBricks.forEach((brick) => {
+        brick.layout = layout;
+        brick.element.style.width = layout.width + "px";
+        brick.element.style.height = layout.height + "px";
+        brick.updatePosition();
+      });
+
+      console.log(
+        `Resized: Container ${container.offsetWidth}px, Brick ${layout.width}x${layout.height}px`,
+      );
+    }, 150);
+  }
+
+  window.addEventListener("resize", handleResize);
 
   // --- Show / Hide screens ---
   function showScreen(screenName) {
@@ -69,6 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("playBtn").addEventListener("click", function () {
     startMusic();
     audioManager.playSfx("gameStart");
+    audioManager.settings.selectedLevel = 1; // Start from level 1
     showScreen("game");
   });
 
@@ -124,10 +163,38 @@ document.addEventListener("DOMContentLoaded", function () {
     audioManager.playSfx("click");
   });
 
-  // --- ESC key to return to menu ---
+  // --- Keyboard Controls ---
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
       showScreen("menu");
     }
+
+    // R to restart current level
+    if (e.key === "r" || e.key === "R") {
+      if (currentBricks.length > 0) {
+        startLevel(currentLevel);
+        console.log("Level restarted");
+      }
+    }
   });
+
+  // --- Test function for development ---
+  window.testBrickHit = function () {
+    const activeBricks = currentBricks.filter((b) => b.isActive());
+    if (activeBricks.length > 0) {
+      const randomBrick =
+        activeBricks[Math.floor(Math.random() * activeBricks.length)];
+      const destroyed = randomBrick.hit();
+      console.log(
+        `Brick hit! Destroyed: ${destroyed}, Active remaining: ${activeBricks.length - (destroyed ? 1 : 0)}`,
+      );
+    }
+  };
+
+  // --- Log initial state ---
+  console.log("Arkanoid initialized!");
+  console.log("Controls:");
+  console.log("- ESC: Return to menu");
+  console.log("- R: Restart level");
+  console.log("- Test: testBrickHit()");
 });
