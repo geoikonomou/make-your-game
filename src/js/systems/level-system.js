@@ -11,18 +11,44 @@ import { Brick } from "../entities/brick.js";
  * - Win condition support
  */
 export class LevelSystem {
+  /**
+   * Get level data by level number
+   * @param {number} levelNumber - The level number (1-based)
+   * @returns {object|null} Level data object or null if not found
+   */
   static getLevel(levelNumber) {
     return LEVELS[levelNumber] ?? null;
   }
 
+  /**
+   * Get total number of levels
+   * @returns {number} Total levels available
+   */
   static getTotalLevels() {
     return Object.keys(LEVELS).length;
   }
 
+  /**
+   * Validate if a level exists
+   * @param {number} levelNumber - The level number to check
+   * @returns {boolean} True if level exists
+   */
   static isValidLevel(levelNumber) {
     return levelNumber in LEVELS;
   }
 
+  /**
+   * Create brick entities from level layout
+   * @param {number} levelNumber - The level number to load (1-based)
+   * @param {object} layout - Layout configuration calculated by BrickLayoutSystem
+   * @param {number} layout.width - Width of each brick in pixels
+   * @param {number} layout.height - Height of each brick in pixels
+   * @param {number} layout.padding - Spacing between bricks in pixels
+   * @param {number} layout.offsetLeft - Horizontal offset from left edge
+   * @param {number} layout.offsetTop - Vertical offset from top edge
+   * @param {number} layout.cols - Number of columns in the brick grid
+   * @returns {Brick[]} Array of Brick entities, or empty array if level not found
+   */
   static createBricks(levelNumber, layout) {
     const level = this.getLevel(levelNumber);
     if (!level) return [];
@@ -47,6 +73,11 @@ export class LevelSystem {
     return bricks;
   }
 
+  /**
+   * Count total breakable bricks in a level
+   * @param {number} levelNumber - The level number
+   * @returns {number} Count of breakable bricks
+   */
   static countBreakableBricks(levelNumber) {
     const level = this.getLevel(levelNumber);
     if (!level) return 0;

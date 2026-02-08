@@ -38,9 +38,6 @@ export class Brick {
     this.updateAppearance();
   }
 
-  /**
-   * Create the DOM element for the brick
-   */
   createElement() {
     const brick = document.createElement("div");
 
