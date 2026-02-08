@@ -1,148 +1,104 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arkanoid - Brick Breaker</title>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap"
-      rel="stylesheet"
-    />
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="./src/css/menu.css" />
-    <link rel="stylesheet" href="./src/css/game-board.css" />
-  </head>
-  <body>
-    <div class="container">
-      <!-- Main Menu -->
-      <div class="main-menu" id="mainMenu">
-        <h1 class="game-title">ARKANOID</h1>
-        <div class="menu-buttons">
-          <button class="menu-btn" id="playBtn">Play Game</button>
-          <button class="menu-btn" id="selectLevelBtn">Select Level</button>
-          <button class="menu-btn" id="optionsBtn">Options</button>
-        </div>
-      </div>
+import { audioManager } from "./audio/audio-manager.js";
 
-      <!-- Level Selection -->
-      <div class="screen hidden" id="levelScreen">
-        <h2>Select Level</h2>
-        <div class="level-grid">
-          <button class="level-btn" data-level="1">Level 1</button>
-          <button class="level-btn" data-level="2">Level 2</button>
-          <button class="level-btn" data-level="3">Level 3</button>
-          <button class="level-btn" data-level="4">Level 4</button>
-        </div>
-        <button class="back-btn" onclick="showScreen('menu')">
-          Back to Menu
-        </button>
-      </div>
+document.addEventListener("DOMContentLoaded", function () {
+  // Play background music on first interaction
+  let musicStarted = false;
+  function startMusic() {
+    if (!musicStarted) {
+      audioManager.init();
+      audioManager.playMusic("background");
+      musicStarted = true;
+    }
+  }
 
-      <!-- Options Screen -->
-      <div class="screen hidden" id="optionsScreen">
-        <h2>Options</h2>
-        <div class="options-content">
-          <div class="option-item">
-            <button class="menu-btn" id="muteButton">🔊 Unmuted</button>
-          </div>
+  // Show/Hide Screens
+  function showScreen(screenName) {
+    // Hide all
+    document.getElementById("mainMenu").classList.add("hidden");
+    document.getElementById("levelScreen").classList.add("hidden");
+    document.getElementById("optionsScreen").classList.add("hidden");
+    document.getElementById("gameScreen").classList.add("hidden");
 
-          <div class="option-item">
-            <label for="masterVolume">Master Volume</label>
-            <div class="volume-control">
-              <input
-                type="range"
-                id="masterVolume"
-                min="0"
-                max="100"
-                value="70"
-              />
-              <span class="volume-value" id="masterValue">70%</span>
-            </div>
-          </div>
+    // Show selected
+    if (screenName === "menu") {
+      document.getElementById("mainMenu").classList.remove("hidden");
+    } else if (screenName === "levels") {
+      document.getElementById("levelScreen").classList.remove("hidden");
+    } else if (screenName === "options") {
+      document.getElementById("optionsScreen").classList.remove("hidden");
+    } else if (screenName === "game") {
+      document.getElementById("gameScreen").classList.remove("hidden");
+      document.getElementById("currentLevel").textContent =
+        audioManager.settings.selectedLevel;
+    }
+  }
 
-          <div class="option-item">
-            <label for="musicVolume">Music Volume</label>
-            <div class="volume-control">
-              <input
-                type="range"
-                id="musicVolume"
-                min="0"
-                max="100"
-                value="50"
-              />
-              <span class="volume-value" id="musicValue">50%</span>
-            </div>
-          </div>
+  window.showScreen = showScreen;
 
-          <div class="option-item">
-            <label for="sfxVolume">Sound Effects</label>
-            <div class="volume-control">
-              <input type="range" id="sfxVolume" min="0" max="100" value="80" />
-              <span class="volume-value" id="sfxValue">80%</span>
-            </div>
-          </div>
-        </div>
-        <button class="back-btn" onclick="showScreen('menu')">
-          Back to Menu
-        </button>
-      </div>
+  // Main Menu Buttons
+  document.getElementById("playBtn").addEventListener("click", function () {
+    startMusic();
+    audioManager.playSfx("gameStart");
+    showScreen("game");
+  });
 
-      <!-- Game Screen -->
-      <div class="screen hidden" id="gameScreen">
-        <!-- Scoreboard -->
-        <div class="scoreboard">
-          <div class="score-item">
-            <span class="score-label">LEVEL</span>
-            <span class="score-value" id="levelDisplay">1</span>
-          </div>
-          <div class="score-item">
-            <span class="score-label">SCORE</span>
-            <span class="score-value" id="scoreDisplay">0</span>
-          </div>
-          <div class="score-item">
-            <span class="score-label">HIGH SCORE</span>
-            <span class="score-value" id="highScoreDisplay">0</span>
-          </div>
-          <div class="score-item">
-            <span class="score-label">TIME</span>
-            <span class="score-value" id="timeDisplay">0:00</span>
-          </div>
-        </div>
+  document
+    .getElementById("selectLevelBtn")
+    .addEventListener("click", function () {
+      startMusic();
+      audioManager.playSfx("click");
+      showScreen("levels");
+    });
 
-        <!-- Game Container -->
-        <div class="game-container" id="gameContainer">
-          <!-- Bricks will be rendered here -->
-          <div class="bricks-container" id="bricksContainer"></div>
+  document.getElementById("optionsBtn").addEventListener("click", function () {
+    startMusic();
+    audioManager.playSfx("click");
+    showScreen("options");
+  });
 
-          <!-- Paddle and Ball will go here later -->
-          <div class="paddle" id="paddle"></div>
-          <div class="ball" id="ball"></div>
-        </div>
+  // Level Selection
+  const levelButtons = document.querySelectorAll(".level-btn");
+  levelButtons.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      audioManager.settings.selectedLevel = parseInt(
+        this.getAttribute("data-level"),
+      );
+      audioManager.playSfx("gameStart");
+      showScreen("game");
+    });
+  });
 
-        <!-- Lives Display -->
-        <div class="lives-container">
-          <span class="lives-label">LIVES:</span>
-          <div class="lives-display" id="livesDisplay">
-            <span class="life">♥</span>
-            <span class="life">♥</span>
-            <span class="life">♥</span>
-          </div>
-        </div>
+  // Mute Button
+  const muteButton = document.getElementById("muteButton");
+  muteButton.addEventListener("click", function () {
+    const isMuted = audioManager.toggleMute();
+    this.textContent = isMuted ? "🔇 Muted" : "🔊 Unmuted";
+  });
 
-        <button class="back-btn" onclick="showScreen('menu')">
-          Back to Menu
-        </button>
-      </div>
-    </div>
+  // Volume Controls
+  document
+    .getElementById("masterVolume")
+    .addEventListener("input", function () {
+      audioManager.setMasterVolume(this.value);
+      document.getElementById("masterValue").textContent = this.value + "%";
+    });
 
-    <!-- Load non-module scripts first (brick.js, levels.js) -->
-    <script src="./src/js/brick.js"></script>
-    <script src="./src/js/levels.js"></script>
+  document.getElementById("musicVolume").addEventListener("input", function () {
+    audioManager.setMusicVolume(this.value);
+    document.getElementById("musicValue").textContent = this.value + "%";
+  });
 
-    <!-- Load module scripts last -->
-    <script type="module" src="./src/js/main.js"></script>
-  </body>
-</html>
+  document.getElementById("sfxVolume").addEventListener("input", function () {
+    audioManager.setSfxVolume(this.value);
+    document.getElementById("sfxValue").textContent = this.value + "%";
+    // Play a test sound when adjusting SFX volume
+    audioManager.playSfx("click");
+  });
+
+  // ESC key to return to menu
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      showScreen("menu");
+    }
+  });
+});
