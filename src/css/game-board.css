@@ -3,10 +3,10 @@
   --secondary-color: #764ba2;
   --accent-color: #667eea;
   --color-white: #fff;
-  --shadow-white-light: rgba(255, 255, 255, 0.5);
-  --shadow-white-dark: rgba(255, 255, 255, 0.3);
-  --shadow-black-light: rgba(0, 0, 0, 0.3);
-  --shadow-black-dark: rgba(0, 0, 0, 0.5);
+  --shadow-white-light: rgb(255 255 255 / 50%);
+  --shadow-white-dark: rgb(255 255 255 / 30%);
+  --shadow-black-light: rgb(0 0 0 / 30%);
+  --shadow-black-dark: rgb(0 0 0 / 50%);
 }
 
 /* Scoreboard */
@@ -42,7 +42,7 @@
   font-size: 1.8rem;
   color: var(--color-white);
   font-weight: bold;
-  text-shadow: 0 2px 10px rgba(102, 126, 234, 0.8);
+  text-shadow: 0 2px 10px rgb(102 126 234 / 80%);
 }
 
 /* Game Container */
@@ -73,6 +73,7 @@
 /* Brick Styles */
 .brick {
   position: absolute;
+
   /* Width and height set dynamically via JavaScript */
   border-radius: 5px;
   border: 2px solid var(--shadow-white-dark);
@@ -101,11 +102,11 @@
 
 .brick-type-3 {
   background: linear-gradient(135deg, #f56565 0%, #c53030 100%);
-  border-color: rgba(255, 200, 200, 0.5);
+  border-color: rgb(255 200 200 / 50%);
   box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    0 0 15px rgba(245, 101, 101, 0.6);
+    0 2px 8px rgb(0 0 0 / 40%),
+    inset 0 1px 0 rgb(255 255 255 / 40%),
+    0 0 15px rgb(245 101 101 / 60%);
 }
 
 /* Brick States */
@@ -115,11 +116,11 @@
 }
 
 .brick-hit {
-  animation: brickHit 0.2s ease;
+  animation: brick-hit 0.2s ease;
 }
 
 .brick-destroying {
-  animation: brickDestroy 0.3s ease forwards;
+  animation: brick-destroy 0.3s ease forwards;
 }
 
 /* Lives Display */
@@ -151,7 +152,7 @@
 .life {
   font-size: 1.5rem;
   color: #f56565;
-  text-shadow: 0 0 10px rgba(245, 101, 101, 0.8);
+  text-shadow: 0 0 10px rgb(245 101 101 / 80%);
   animation: heartbeat 1.5s ease infinite;
 }
 
@@ -166,7 +167,7 @@
   background: linear-gradient(135deg, var(--color-white) 0%, #e0e0e0 100%);
   border-radius: 8px;
   border: 2px solid var(--accent-color);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 4px 15px rgb(102 126 234 / 60%);
 }
 
 /* Ball (placeholder for now) */
@@ -177,6 +178,7 @@
   transform: translateX(-50%);
   width: 12px;
   height: 12px;
+
   /* background: radial-gradient(circle, #fff, #667eea); */
   background: linear-gradient(
     135deg,
@@ -184,7 +186,7 @@
     var(--accent-color)
   );
   border-radius: 50%;
-  box-shadow: 0 0 20px rgba(102, 126, 234, 0.8);
+  box-shadow: 0 0 20px rgb(102 126 234 / 80%);
 }
 
 /* Animations */
@@ -195,13 +197,15 @@
  * The brick's position is maintained by inline transform: translate()
  * So we animate ONLY the scale property using transform-origin
  */
-@keyframes brickHit {
+@keyframes brick-hit {
   0% {
     transform: var(--brick-position) scale(1);
   }
+
   50% {
     transform: var(--brick-position) scale(1.1);
   }
+
   100% {
     transform: var(--brick-position) scale(1);
   }
@@ -211,15 +215,17 @@
  * Brick Destroy Animation
  * Uses opacity and scale while maintaining position
  */
-@keyframes brickDestroy {
+@keyframes brick-destroy {
   0% {
     transform: var(--brick-position) rotate(0deg);
     opacity: 1;
   }
+
   50% {
     transform: var(--brick-position) rotate(10deg);
     opacity: 0.5;
   }
+
   100% {
     transform: var(--brick-position) rotate(20deg);
     opacity: 0;
@@ -231,13 +237,14 @@
   100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.1);
   }
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .scoreboard {
     flex-wrap: wrap;
     padding: 1rem;
@@ -265,7 +272,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .container {
     padding: 10px;
   }
