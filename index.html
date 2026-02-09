@@ -12,8 +12,8 @@
       rel="stylesheet"
     />
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="game-board.css" />
+    <link rel="stylesheet" href="./src/css/menu.css" />
+    <link rel="stylesheet" href="./src/css/game-board.css" />
   </head>
   <body>
     <div class="container">
@@ -45,6 +45,10 @@
       <div class="screen hidden" id="optionsScreen">
         <h2>Options</h2>
         <div class="options-content">
+          <div class="option-item">
+            <button class="menu-btn" id="muteButton">🔊 Unmuted</button>
+          </div>
+
           <div class="option-item">
             <label for="masterVolume">Master Volume</label>
             <div class="volume-control">
@@ -134,8 +138,6 @@
       </div>
     </div>
 
-    <script src="script.js"></script>
-    <script src="levels.js"></script>
-    <script src="brick.js"></script>
+    <script type="module" src="./src/js/main.js"></script>
   </body>
 </html>
