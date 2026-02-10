@@ -4,8 +4,8 @@ export const gameState = {
   ball: {
     x: 0,
     y: 0,
-    speedX: 1,
-    speedY: 1,
+    speedX: 0,
+    speedY: 0.3,
     radius: 0,
   },
   paddle: {
@@ -33,15 +33,29 @@ export function createGameState() {
   const ball = document.getElementById('ball');
   const ballRect = ball.getBoundingClientRect();
 
-  gameState.ball.x = ballRect.left - containerRect.left,
-    gameState.ball.y = ballRect.top - containerRect.top,
-    gameState.ball.radius = ballRect.width / 2
+  gameState.ball.radius = ballRect.width / 2
 
-  gameState.paddle.x = paddleRect.left - containerRect.left,
-    gameState.paddle.y = paddleRect.top - containerRect.top,
-    gameState.paddle.width = paddleRect.width
+  gameState.paddle.width = paddleRect.width
   gameState.paddle.height = paddleRect.height
 
   gameState.container.width = containerRect.width
   gameState.container.height = containerRect.height
+
+  gameState.ball.x = parseFloat(getComputedStyle(ball).left) - (ballRect.width / 2);
+  gameState.ball.y = parseFloat(getComputedStyle(ball).top);
+  gameState.paddle.x = parseFloat(getComputedStyle(paddle).left) - (paddleRect.width / 2);
+  gameState.paddle.y = parseFloat(getComputedStyle(paddle).top);
+
+  ball.style.left = "0px";
+  ball.style.top = "0px";
+  paddle.style.left = "0px";
+  paddle.style.top = "0px";
+
+  // gameState.paddle.x = paddleRect.left - containerRect.left;
+  // gameState.paddle.y = paddleRect.top - containerRect.top;
+  //   console.log("this is the container ", containerRect);
+  // console.log("this is the ball ", ballRect);
+  // console.log("this is the paddle ", paddleRect);
+  // console.log("this is the ball x ", gameState.ball.x);
+  // console.log("this is the ball y ", gameState.ball.y);
 };

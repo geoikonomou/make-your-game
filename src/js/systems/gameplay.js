@@ -42,7 +42,7 @@ export function update(dt) {
   /* -------- gameState.ball Movement -------- */
   gameState.ball.x += gameState.ball.speedX * dt;
   gameState.ball.y += gameState.ball.speedY * dt;
-
+  //
   /* -------- Wall Collisions -------- */
   if (gameState.ball.y <= 0) {
     gameState.ball.y = 0;
@@ -62,7 +62,7 @@ export function update(dt) {
   if (rectCircleCollision(gameState.paddle, gameState.ball)) {
 
     // Push gameState.ball out
-    gameState.ball.x = gameState.paddle.x + gameState.paddle.width;
+    // gameState.ball.x = gameState.paddle.x + gameState.paddle.width;
 
     // Calculate hit position (-1 to 1)
     const hitPos = ((gameState.ball.y + gameState.ball.radius) - (gameState.paddle.y + gameState.paddle.height / 2)) / (gameState.paddle.height / 2);
