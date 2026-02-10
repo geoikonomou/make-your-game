@@ -1,8 +1,8 @@
-// ui-controller.js
 import { startMusic, toggleMute, volumeControls } from "./audio-controller.js";
 import { startLevel, getCurrentLevel, getCurrentBricks } from "./level-controller.js";
 import { showScreen } from "./screen-controller.js";
 import { audioManager } from "../audio/audio-manager.js";
+import { enterGameMode } from "../core/game-engine.js";
 
 export function setupUI(DOM) {
   // --- Main Menu ---
@@ -11,6 +11,7 @@ export function setupUI(DOM) {
     audioManager?.playSfx?.("gameStart");
     audioManager.settings.selectedlevel = 1;
     showScreen("game", DOM);
+    enterGameMode();
   });
 
   DOM.buttons.selectLevel.addEventListener("click", () => {
@@ -37,9 +38,9 @@ export function setupUI(DOM) {
     });
   });
 
+  //back to menu buttons
   DOM.buttons.backtoMenuButtons.forEach((btn) => {
     btn.addEventListener("click", function() {
-      console.log('hello');
       showScreen("menu", DOM);
     });
   });
