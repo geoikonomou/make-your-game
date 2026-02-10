@@ -43,6 +43,8 @@ export function update(dt) {
     gameState.ball.speedY *= -1;
   }
   if (gameState.ball.y >= h - gameState.ball.radius * 2) {
+    //this is the case that the ball hit the bottom
+    //so inside of here a life will be lost and the game will restart
     gameState.ball.y = h - gameState.ball.radius * 2;
     gameState.ball.speedY *= -1;
   }
