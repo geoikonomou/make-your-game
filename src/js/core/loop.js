@@ -4,9 +4,9 @@ import { render } from "../systems/render.js";
 let lastTime = performance.now();
 
 export function startLoop() {
-  function loop(t) {
-    const dt = t - lastTime;
-    lastTime = t;
+  function loop(now) {
+    const dt = now - lastTime;
+    lastTime = now;
 
     gameplayUpdate(dt);
     render();
