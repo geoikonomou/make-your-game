@@ -1,4 +1,4 @@
-import { World, GameState } from "../core/state.js";
+import { gameState } from "../core/state.js";
 import { getInput } from "./inputs.js";
 
 let gameEl = null;
@@ -23,56 +23,55 @@ function rectCircleCollision(rect, ball) {
 }
 
 export function update(dt) {
-  if (GameState.mode !== "RUNNING") return;
+  if (gameState.mode !== "RUNNING") return;
 
-  const { ball, player } = World;
   const { w, h } = getGameBounds();
   const keys = getInput();
 
   /* -------- Player Movement -------- */
   if (keys["ArrowLeft"] || keys["KeyW"]) {
-    player.x -= player.speed * dt;
+    gameState.paddle.x -= gameState.paddle.speed * dt;
   }
   if (keys["ArrowRight"] || keys["KeyS"]) {
-    player.x += player.speed * dt;
+    gameState.paddle.x += gameState.paddle.speed * dt;
   }
 
   // Clamp player inside game
-  player.y = Math.max(0, Math.min(h - player.h, player.y));
+  gameState.paddle.x = Math.max(0, Math.min(w - gameState.paddle.width, gameState.paddle.x));
 
-  /* -------- Ball Movement -------- */
-  ball.x += ball.vx * dt;
-  ball.y += ball.vy * dt;
+  /* -------- gameState.ball Movement -------- */
+  gameState.ball.x += gameState.ball.speedX * dt;
+  gameState.ball.y += gameState.ball.speedY * dt;
 
   /* -------- Wall Collisions -------- */
-  if (ball.y <= 0) {
-    ball.y = 0;
-    ball.vy *= -1;
+  if (gameState.ball.y <= 0) {
+    gameState.ball.y = 0;
+    gameState.ball.speedY *= -1;
   }
-  if (ball.y >= h - ball.r * 2) {
-    ball.y = h - ball.r * 2;
-    ball.vy *= -1;
-  }
-
-  if (ball.x >= w - ball.r * 2) {
-    ball.x = w - ball.r * 2;
-    ball.vx *= -1;
+  if (gameState.ball.y >= h - gameState.ball.radius * 2) {
+    gameState.ball.y = h - gameState.ball.radius * 2;
+    gameState.ball.speedY *= -1;
   }
 
-  /* -------- Player Collision -------- */
-  if (rectCircleCollision(player, ball)) {
+  if (gameState.ball.x >= w - gameState.ball.radius * 2) {
+    gameState.ball.x = w - gameState.ball.radius * 2;
+    gameState.ball.speedX *= -1;
+  }
 
-    // Push ball out
-    ball.x = player.x + player.w;
+  /* -------- gameState.paddle Collision -------- */
+  if (rectCircleCollision(gameState.paddle, gameState.ball)) {
+
+    // Push gameState.ball out
+    gameState.ball.x = gameState.paddle.x + gameState.paddle.width;
 
     // Calculate hit position (-1 to 1)
-    const hitPos = ((ball.y + ball.r) - (player.y + player.h / 2)) / (player.h / 2);
+    const hitPos = ((gameState.ball.y + gameState.ball.radius) - (gameState.paddle.y + gameState.paddle.height / 2)) / (gameState.paddle.height / 2);
 
     // Angle reflection
-    const speed = Math.hypot(ball.vx, ball.vy);
+    const speed = Math.hypot(gameState.ball.speedX, gameState.ball.speedY);
     const angle = hitPos * (Math.PI / 3); // max 60° angle
 
-    ball.vx = Math.cos(angle) * speed;
-    ball.vy = Math.sin(angle) * speed;
+    gameState.ball.speedX = Math.cos(angle) * speed;
+    gameState.ball.speedY = Math.sin(angle) * speed;
   }
 }

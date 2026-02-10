@@ -1,11 +1,11 @@
-import { GameState } from "../core/state.js";
+import { gameState } from "../core/state.js";
 
 const keys = {};
 export function initInput() {
   window.addEventListener("keydown", (e) => {
     if (e.code === "Space") {
-      GameState.mode =
-        GameState.mode === "RUNNING" ? "PAUSED" : "RUNNING";
+      gameState.mode =
+        gameState.mode === "RUNNING" ? "PAUSED" : "RUNNING";
     }
   });
   window.addEventListener("keydown", e => {

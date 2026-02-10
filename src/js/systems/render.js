@@ -1,25 +1,18 @@
-import { World, GameState } from "../core/state.js";
+import { gameState } from "../core/state.js";
 
-let ballEl = null;
-let playerEl = null;
-let gameEl = null;
 
 export function render() {
-  if (!ballEl) {
-    ballEl = document.getElementById("ball");
-    playerEl = document.getElementById("paddle");
-    gameEl = document.getElementById("gameContainer");
-  }
 
-  const { ball, player } = World;
+  const ball = document.getElementById('ball');
+  const paddle = document.getElementById('paddle');
 
-  ballEl.style.transform = `translate(${ball.x}px, ${ball.y}px)`;
-  playerEl.style.transform = `translate(${player.x}px, ${player.y}px)`;
+  ball.style.transform = `translate(${gameState.ball.x}px, ${gameState.ball.y}px)`;
+  paddle.style.transform = `translate(${gameState.paddle.x}px, ${gameState.paddle.y}px)`;
 
-  if (GameState.mode === "PAUSED") {
-    gameEl.classList.add("paused");
+  if (gameState.mode === "PAUSED") {
+    //pause the game
   } else {
-    gameEl.classList.remove("paused");
+    //not paused
   }
 }
 
