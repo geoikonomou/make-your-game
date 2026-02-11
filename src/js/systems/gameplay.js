@@ -1,17 +1,21 @@
 import { gameState } from "../core/state.js";
 import { getInput } from "./inputs.js";
 
-
-
 // AABB collision
 function rectCircleCollision(rect, ball) {
-  const closestX = Math.max(rect.x, Math.min(ball.x + ball.radius, rect.x + rect.width));
-  const closestY = Math.max(rect.y, Math.min(ball.y + ball.radius, rect.y + rect.height));
+  const closestX = Math.max(
+    rect.x,
+    Math.min(ball.x + ball.radius, rect.x + rect.width),
+  );
+  const closestY = Math.max(
+    rect.y,
+    Math.min(ball.y + ball.radius, rect.y + rect.height),
+  );
 
-  const dx = (ball.x + ball.radius) - closestX;
-  const dy = (ball.y + ball.radius) - closestY;
+  const dx = ball.x + ball.radius - closestX;
+  const dy = ball.y + ball.radius - closestY;
 
-  return (dx * dx + dy * dy) < (ball.radius * ball.radius);
+  return dx * dx + dy * dy < ball.radius * ball.radius;
 }
 
 export function update(dt) {
@@ -31,7 +35,10 @@ export function update(dt) {
   }
 
   // Clamp player inside game
-  gameState.paddle.x = Math.max(0, Math.min(w - gameState.paddle.width, gameState.paddle.x));
+  gameState.paddle.x = Math.max(
+    0,
+    Math.min(w - gameState.paddle.width, gameState.paddle.x),
+  );
 
   /* -------- gameState.ball Movement -------- */
   gameState.ball.x += gameState.ball.speedX * dt;
@@ -94,7 +101,11 @@ export function update(dt) {
     gameState.ball.y = gameState.paddle.y - gameState.ball.radius * 2;
 
     // Hit position relative to gameState.paddle center
-    let hitPos = ((gameState.ball.x + gameState.ball.radius) - (gameState.paddle.x + gameState.paddle.width / 2)) / (gameState.paddle.width / 2);
+    let hitPos =
+      (gameState.ball.x +
+        gameState.ball.radius -
+        (gameState.paddle.x + gameState.paddle.width / 2)) /
+      (gameState.paddle.width / 2);
     hitPos = Math.max(-1, Math.min(1, hitPos));
 
     // Speed and reflection
@@ -102,6 +113,8 @@ export function update(dt) {
 
     const maxXRatio = 0.8;
     gameState.ball.speedX = hitPos * speed * maxXRatio;
-    gameState.ball.speedY = -Math.sqrt(speed * speed - gameState.ball.speedX * gameState.ball.speedX); // keep total speed constant
+    gameState.ball.speedY = -Math.sqrt(
+      speed * speed - gameState.ball.speedX * gameState.ball.speedX,
+    ); // keep total speed constant
   }
 }
