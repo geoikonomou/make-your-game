@@ -3,6 +3,7 @@ import {
   startLevel,
   getCurrentLevel,
   getCurrentBricks,
+  handleResize,
 } from "./level-controller.js";
 import { showScreen } from "./screen-controller.js";
 import { audioManager } from "../audio/audio-manager.js";
@@ -82,18 +83,15 @@ export function setupUI(DOM) {
   });
 
   // --- Resize ---
-  let resizeTimeout;
-  window.addEventListener("resize", () => {
-    if (!getCurrentBricks().length) return;
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => startLevel(getCurrentLevel(), DOM), 150);
-  });
-
+  window.addEventListener("resize", () => handleResize(DOM));
   // --- Debug ---
   window.testBrickHit = () => {
     const bricks = getCurrentBricks().filter((b) => b.isActive());
     if (!bricks.length) return;
     const randomBrick = bricks[Math.floor(Math.random() * bricks.length)];
     randomBrick.hit();
+    console.log(
+      `Brick hit! Destroyed: ${randomBrick}, Active remaining: ${bricks.length - (randomBrick ? 1 : 0)}`,
+    );
   };
 }
