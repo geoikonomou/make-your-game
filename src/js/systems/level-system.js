@@ -49,6 +49,9 @@ export class LevelSystem {
    * @param {number} layout.cols - Number of columns in the brick grid
    * @returns {Brick[]} Array of Brick entities, or empty array if level not found
    */
+  static createBall(levelNumber, layout) {}
+  static createPaddle(levelNumber, layout) {}
+
   static createBricks(levelNumber, layout) {
     const level = this.getLevel(levelNumber);
     if (!level) return [];

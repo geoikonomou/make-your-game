@@ -13,6 +13,9 @@ export function startLevel(levelNumber, DOM) {
 
   const layout = BrickLayoutSystem.calculate(DOM.container.offsetWidth);
   currentBricks = LevelSystem.createBricks(levelNumber, layout);
+  //we can create a createBall and createPaddle in the LevelSystem so that the ball and the paddle is generated when we enter the level.Utilizing the Ball class and the Paddle class.
+  //ball=LevelSystem.createBall(levelNumber,);
+  //just leaving ideas
 
   const fragment = document.createDocumentFragment();
   currentBricks.forEach((brick) => fragment.appendChild(brick.element));
@@ -24,6 +27,31 @@ export function startLevel(levelNumber, DOM) {
 
 export function getCurrentBricks() {
   return currentBricks;
+}
+
+let resizeTimeout;
+export function handleResize(DOM) {
+  if (currentBricks.length === 0) return;
+
+  console.log(DOM.container);
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    // Recalculate layout
+    const layout = BrickLayoutSystem.calculate(DOM.container.offsetWidth);
+    console.log("this is the container width", DOM.container.offsetWidth);
+
+    // Update all bricks with new layout
+    currentBricks.forEach((brick) => {
+      brick.layout = layout;
+      brick.element.style.width = layout.width + "px";
+      brick.element.style.height = layout.height + "px";
+      brick.updatePosition();
+    });
+
+    console.log(
+      `Resized: Container ${DOM.container.offsetWidth}px, Brick ${layout.width}x${layout.height}px`,
+    );
+  }, 150);
 }
 
 export function getCurrentLevel() {
