@@ -1,7 +1,6 @@
 import { setupUI } from "./controllers/ui-controller.js";
 import { startLevel } from "./controllers/level-controller.js";
 
-
 document.addEventListener("DOMContentLoaded", () => {
   const DOM = {
     container: document.getElementById("gameContainer"),
@@ -39,5 +38,4 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("- ESC: Return to menu");
   console.log("- R: Restart level");
   console.log("- Test: testBrickHit()");
-
 });

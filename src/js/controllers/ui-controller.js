@@ -1,5 +1,9 @@
 import { startMusic, toggleMute, volumeControls } from "./audio-controller.js";
-import { startLevel, getCurrentLevel, getCurrentBricks } from "./level-controller.js";
+import {
+  startLevel,
+  getCurrentLevel,
+  getCurrentBricks,
+} from "./level-controller.js";
 import { showScreen } from "./screen-controller.js";
 import { audioManager } from "../audio/audio-manager.js";
 import { enterGameMode } from "../core/game-engine.js";
@@ -27,12 +31,15 @@ export function setupUI(DOM) {
   });
 
   // --- Mute ---
-  DOM.buttons.mute.addEventListener("click", () => toggleMute(DOM.buttons.mute));
+  DOM.buttons.mute.addEventListener("click", () =>
+    toggleMute(DOM.buttons.mute),
+  );
 
   // --- Level buttons ---
   DOM.buttons.levelButtons.forEach((btn) => {
-    btn.addEventListener("click", function() {
-      audioManager?.settings && (audioManager.settings.selectedLevel = parseInt(this.dataset.level));
+    btn.addEventListener("click", function () {
+      audioManager?.settings &&
+        (audioManager.settings.selectedLevel = parseInt(this.dataset.level));
       showScreen("game", DOM);
       startLevel(parseInt(this.dataset.level), DOM);
     });
@@ -40,7 +47,7 @@ export function setupUI(DOM) {
 
   //back to menu buttons
   DOM.buttons.backtoMenuButtons.forEach((btn) => {
-    btn.addEventListener("click", function() {
+    btn.addEventListener("click", function () {
       showScreen("menu", DOM);
     });
   });
@@ -52,9 +59,21 @@ export function setupUI(DOM) {
     });
   };
 
-  setupSlider(DOM.buttons.volume.master, volumeControls.master, DOM.buttons.volume.masterValue);
-  setupSlider(DOM.buttons.volume.music, volumeControls.music, DOM.buttons.volume.musicValue);
-  setupSlider(DOM.buttons.volume.sfx, volumeControls.sfx, DOM.buttons.volume.sfxValue);
+  setupSlider(
+    DOM.buttons.volume.master,
+    volumeControls.master,
+    DOM.buttons.volume.masterValue,
+  );
+  setupSlider(
+    DOM.buttons.volume.music,
+    volumeControls.music,
+    DOM.buttons.volume.musicValue,
+  );
+  setupSlider(
+    DOM.buttons.volume.sfx,
+    volumeControls.sfx,
+    DOM.buttons.volume.sfxValue,
+  );
 
   // --- Keyboard ---
   document.addEventListener("keydown", (e) => {

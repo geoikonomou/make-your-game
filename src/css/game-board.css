@@ -89,9 +89,11 @@
 
 /* Brick Types - Different Colors */
 .brick-type-1 {
-  background: linear-gradient(135deg,
-      var(--accent-color) 0%,
-      var(--secondary-color) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--accent-color) 0%,
+    var(--secondary-color) 100%
+  );
 }
 
 .brick-type-2 {
@@ -178,9 +180,11 @@
   height: 12px;
 
   /* background: radial-gradient(circle, #fff, #667eea); */
-  background: linear-gradient(135deg,
-      var(--color-white) 20%,
-      var(--accent-color));
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 20%,
+    var(--accent-color)
+  );
   border-radius: 50%;
   box-shadow: 0 0 20px rgb(102 126 234 / 80%);
 }
@@ -229,7 +233,6 @@
 }
 
 @keyframes heartbeat {
-
   0%,
   100% {
     transform: scale(1);
