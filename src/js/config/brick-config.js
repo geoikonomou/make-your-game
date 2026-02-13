@@ -27,5 +27,4 @@ export const BRICK_LAYOUT = {
   BASE_HEIGHT: 25,
   BASE_PADDING: 5,
   OFFSET_TOP: 80,
-  COLS: 10,
 };

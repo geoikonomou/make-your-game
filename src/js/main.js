@@ -31,8 +31,11 @@ document.addEventListener("DOMContentLoaded", function () {
     bricksContainer.innerHTML = "";
     currentBricks = [];
 
+    // Get max columns from this level
+    const cols = LevelSystem.getMaxColumns(levelNumber);
+
     // Calculate layout based on container width
-    const layout = BrickLayoutSystem.calculate(container.offsetWidth);
+    const layout = BrickLayoutSystem.calculate(container.clientWidth, cols);
 
     // Create bricks
     const bricks = LevelSystem.createBricks(levelNumber, layout);
@@ -58,8 +61,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
+      // Recalculate cols from current level
+      const cols = LevelSystem.getMaxColumns(currentLevel);
+
       // Recalculate layout
-      const layout = BrickLayoutSystem.calculate(container.offsetWidth);
+      const layout = BrickLayoutSystem.calculate(container.clientWidth, cols);
 
       // Update all bricks with new layout
       currentBricks.forEach((brick) => {

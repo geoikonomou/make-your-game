@@ -94,4 +94,17 @@ export class LevelSystem {
 
     return count;
   }
+
+  /**
+   * Get the maximum number of columns in a level
+   * @param {number} levelNumber - The level number
+   * @returns {number} Maximum columns in any row
+   */
+  static getMaxColumns(levelNumber) {
+    const level = this.getLevel(levelNumber);
+    if (!level) return 10; // Default fallback
+
+    // Find the longest row
+    return Math.max(...level.layout.map((row) => row.length));
+  }
 }
