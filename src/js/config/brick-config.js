@@ -1,0 +1,30 @@
+export const BRICK_TYPES = {
+  NORMAL: 1,
+  HARD: 2,
+  UNBREAKABLE: 3,
+};
+
+export const BRICK_HITS = {
+  [BRICK_TYPES.NORMAL]: 1,
+  [BRICK_TYPES.HARD]: 2,
+  [BRICK_TYPES.UNBREAKABLE]: Infinity,
+};
+
+export const BRICK_SCORES = {
+  [BRICK_TYPES.NORMAL]: 10,
+  [BRICK_TYPES.HARD]: 20,
+  [BRICK_TYPES.UNBREAKABLE]: 0,
+};
+
+export const BRICK_COLORS = {
+  [BRICK_TYPES.NORMAL]: "#667eea",
+  [BRICK_TYPES.HARD]: "#48bb78",
+  [BRICK_TYPES.UNBREAKABLE]: "#f56565",
+};
+
+export const BRICK_LAYOUT = {
+  BASE_WIDTH: 800,
+  BASE_HEIGHT: 25,
+  BASE_PADDING: 5,
+  OFFSET_TOP: 80,
+};

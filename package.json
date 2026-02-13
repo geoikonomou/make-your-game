@@ -1,0 +1,48 @@
+{
+  "name": "make-your-game",
+  "version": "1.0.0",
+  "description": "make-your-game zone01 project by dkotsi, epapamic, geoikonomou",
+  "main": "index.js",
+  "scripts": {
+    "lint": "npm run lint:js && npm run lint:css && npm run format:check",
+    "lint:js": "eslint \"src/**/*.js\"",
+    "lint:css": "stylelint \"src/**/*.css\"",
+    "lint:fix": "eslint \"src/**/*.js\" --fix && stylelint \"src/**/*.css\" --fix && prettier --write \"src/**/*.{js,css,html}\"",
+    "format": "prettier --write \"src/**/*.{js,css,html}\"",
+    "format:check": "prettier --check \"src/**/*.{js,css,html}\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.css": [
+      "stylelint --fix",
+      "prettier --write"
+    ],
+    "*.html": [
+      "prettier --write"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geoikonomou/make-your-game.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/geoikonomou/make-your-game/issues"
+  },
+  "homepage": "https://github.com/geoikonomou/make-your-game#readme",
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.1",
+    "stylelint": "^16.12.0",
+    "stylelint-config-standard": "^36.0.1"
+  }
+}
