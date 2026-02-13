@@ -1,4 +1,3 @@
-import { gameState } from "../core/state.js";
 import { getInput } from "./inputs.js";
 
 // AABB collision

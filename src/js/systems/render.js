@@ -1,4 +1,3 @@
-import { gameState } from "../core/state.js";
 
 export function render() {
   const ball = document.getElementById("ball");
