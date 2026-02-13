@@ -1,6 +1,6 @@
-import { initInput } from "../systems/inputs.js";
-import { startLoop } from "./loop.js";
-import { gameState, createGameState } from "./state.js";
+// import { initInput } from "../systems/inputs.js";
+// import { startLoop } from "./loop.js";
+// import { gameState, createGameState } from "./state.js";
 
 export function startGame() {
   createGameState();

@@ -1,4 +1,3 @@
-import { gameState } from "../core/state.js";
 
 const keys = {};
 export function initInput() {
