@@ -1,20 +1,25 @@
+import { gameState } from "../core/state.js";
 
 const keys = {};
 export function initInput() {
   window.addEventListener("keydown", (e) => {
     if (e.code === "Space") {
-      gameState.mode = gameState.mode === "RUNNING" ? "PAUSED" : "RUNNING";
+      // toggle run/pause
+      gameState.setMode(
+        gameState.getMode() === "RUNNING" ? "PAUSED" : "RUNNING",
+      );
     }
   });
+
   window.addEventListener("keydown", (e) => {
     keys[e.code] = true;
-    console.log(e.code);
   });
 
   window.addEventListener("keyup", (e) => {
     keys[e.code] = false;
   });
 }
+
 export function getInput() {
   return keys;
 }

@@ -1,14 +1,15 @@
+import { gameState } from "../core/state.js";
 
 export function render() {
-  const ball = document.getElementById("ball");
-  const paddle = document.getElementById("paddle");
+  const paddle = gameState.getPaddle();
+  if (paddle && paddle.updatePosition) paddle.updatePosition();
 
-  ball.style.transform = `translate(${gameState.ball.x}px, ${gameState.ball.y}px)`;
-  paddle.style.transform = `translate(${gameState.paddle.x}px, ${gameState.paddle.y}px)`;
+  const balls = gameState.getBalls();
+  for (const b of balls) {
+    if (b && b.updatePosition) b.updatePosition();
+  }
 
-  if (gameState.mode === "PAUSED") {
-    //pause the game
-  } else {
-    //not paused
+  if (gameState.getMode() === "PAUSED") {
+    // pause overlay or similar
   }
 }

@@ -16,7 +16,7 @@ export function setupUI(DOM) {
     audioManager?.playSfx?.("gameStart");
     audioManager.settings.selectedlevel = 1;
     showScreen("game", DOM);
-    enterGameMode();
+    // enterGameMode();
   });
 
   DOM.buttons.selectLevel.addEventListener("click", () => {
@@ -38,7 +38,7 @@ export function setupUI(DOM) {
 
   // --- Level buttons ---
   DOM.buttons.levelButtons.forEach((btn) => {
-    btn.addEventListener("click", function () {
+    btn.addEventListener("click", function() {
       audioManager?.settings &&
         (audioManager.settings.selectedLevel = parseInt(this.dataset.level));
       showScreen("game", DOM);
@@ -48,7 +48,7 @@ export function setupUI(DOM) {
 
   //back to menu buttons
   DOM.buttons.backtoMenuButtons.forEach((btn) => {
-    btn.addEventListener("click", function () {
+    btn.addEventListener("click", function() {
       showScreen("menu", DOM);
     });
   });
