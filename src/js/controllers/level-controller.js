@@ -1,4 +1,5 @@
 import { BrickLayoutSystem } from "../systems/brick-layout-system.js";
+import { enterGameMode } from "../core/game-engine.js";
 import { LevelSystem } from "../systems/level-system.js";
 
 let currentBricks = [];
@@ -61,6 +62,7 @@ export function startLevel(levelNumber, DOM) {
 
   DOM.levelDisplay.textContent = levelNumber;
   console.log(`Level ${levelNumber} loaded: ${currentBricks.length} bricks`);
+  enterGameMode();
 }
 
 export function getCurrentBricks() {

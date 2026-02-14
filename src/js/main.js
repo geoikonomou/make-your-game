@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   setupUI(DOM);
 
-  startLevel(1, DOM);
+  // startLevel(1, DOM);
 
   console.log("Arkanoid initialized!");
   console.log("Controls:");

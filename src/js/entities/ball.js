@@ -99,6 +99,8 @@ export class Ball {
 
     if (this.y >= gameContainerHeight - this.radius * 2) {
       this.y = gameContainerHeight - this.radius * 2;
+      //uncomment this later
+      this.bounceY();
       return "BOTTOM";
     }
 
