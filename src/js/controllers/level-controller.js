@@ -42,7 +42,10 @@ export function startLevel(levelNumber, DOM) {
   }
   currentBall = null;
 
-  const layout = BrickLayoutSystem.calculate(DOM.container.offsetWidth);
+  // Get max columns from this level
+  const cols = LevelSystem.getMaxColumns(levelNumber);
+
+  const layout = BrickLayoutSystem.calculate(DOM.container.clientWidth, cols);
   currentBricks = LevelSystem.createBricks(levelNumber, layout);
   // create paddle and ball based on the same container dimensions
   const containerW = DOM.container.offsetWidth;
@@ -84,8 +87,11 @@ export function handleResize(DOM) {
   console.log(DOM.container);
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
-    // Recalculate layout
-    const layout = BrickLayoutSystem.calculate(DOM.container.offsetWidth);
+    // recalculate columns from this level
+    const cols = LevelSystem.getMaxColumns(levelNumber);
+
+    //recalculate layout for new width
+    const layout = BrickLayoutSystem.calculate(DOM.container.clientWidth, cols);
     console.log("this is the container width", DOM.container.offsetWidth);
 
     // Update all bricks with new layout
