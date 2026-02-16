@@ -2,6 +2,7 @@ import {
   getCurrentPaddle,
   getCurrentBall,
   getCurrentBricks,
+  getCurrentLevel,
 } from "../controllers/level-controller.js";
 
 export class GameState {
@@ -150,7 +151,8 @@ export const gameState = new GameState();
 
 export function createGameState(DOM = null) {
   // convenience wrapper to initialize the singleton from the active level
-  gameState.resetForLevel(gameState.level || 1, DOM);
+  const level = getCurrentLevel();
+  gameState.resetForLevel(level || 1, DOM);
   return gameState;
 }
 
