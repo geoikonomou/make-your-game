@@ -2,10 +2,11 @@ import { update as gameplayUpdate } from "../systems/gameplay.js";
 import { render } from "../systems/render.js";
 import { gameState } from "./state.js";
 
-let lastTime = performance.now();
+let lastTime;
 
 export function startLoop() {
   function loop(now) {
+    if (!lastTime) lastTime = now;
     const dtMs = now - lastTime;
     lastTime = now;
 
