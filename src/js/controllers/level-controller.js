@@ -1,12 +1,26 @@
 import { BrickLayoutSystem } from "../systems/brick-layout-system.js";
 import { enterGameMode } from "../core/game-engine.js";
 import { LevelSystem } from "../systems/level-system.js";
+import { gameState } from "../core/state.js";
 
 let currentBricks = [];
 let currentLevel = 1;
 let currentPaddle = null;
 let currentBall = null;
 
+/**
+ * Initializes and loads a level.
+ *
+ * Responsibilities:
+ * - Clears previous entities
+ * - Generates brick layout
+ * - Creates paddle and ball
+ * - Mounts everything into the DOM
+ * - Enters active game mode
+ *
+ * @param {number} levelNumber - Level index to load.
+ * @param {Object} DOM - Centralized DOM reference object.
+ */
 export function startLevel(levelNumber, DOM) {
   currentLevel = levelNumber;
 
@@ -48,10 +62,10 @@ export function startLevel(levelNumber, DOM) {
   const layout = BrickLayoutSystem.calculate(DOM.container.clientWidth, cols);
   currentBricks = LevelSystem.createBricks(levelNumber, layout);
   // create paddle and ball based on the same container dimensions
-  const containerW = DOM.container.offsetWidth;
-  const containerH = DOM.container.offsetHeight;
+  const containerW = DOM.container.clientWidth;
+  const containerH = DOM.container.clientHeight;
   currentPaddle = LevelSystem.createPaddle(containerW, containerH);
-  currentBall = LevelSystem.createBall(currentPaddle);
+  currentBall = LevelSystem.createBall(currentPaddle, containerH);
 
   const fragment = document.createDocumentFragment();
   currentBricks.forEach((brick) => fragment.appendChild(brick.element));
@@ -68,27 +82,60 @@ export function startLevel(levelNumber, DOM) {
   enterGameMode();
 }
 
+/**
+ * Returns current active brick instances
+ *
+ * @returns {Array<Object>} Array of brick entities.
+ */
 export function getCurrentBricks() {
   return currentBricks;
 }
 
+/**
+ * Returns the currently active paddle entity.
+ *
+ * @returns {Object|null}
+ */
 export function getCurrentPaddle() {
   return currentPaddle;
 }
 
+/**
+ * Returns the currently active ball entity.
+ *
+ * @returns {Object|null}
+ */
 export function getCurrentBall() {
   return currentBall;
 }
 
-let resizeTimeout;
-export function handleResize(DOM) {
-  if (currentBricks.length === 0) return;
+/**
+ * Returns the currently loaded level number.
+ *
+ * @returns {number}
+ */
+export function getCurrentLevel() {
+  return currentLevel;
+}
 
-  console.log(DOM.container);
+let resizeTimeout;
+/**
+ * Handles responsive recalculation of brick layout when the window resizes.
+ *
+ * Debounced to prevent excessive recalculations.
+ *
+ * @param {Object} DOM - Centralized DOM reference object.
+ */
+export function handleResize(levelNumber, DOM) {
+  if (currentBricks.length === 0 && !currentPaddle) return;
+
+  // console.log(DOM.container);
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
     // recalculate columns from this level
     const cols = LevelSystem.getMaxColumns(levelNumber);
+    const containerW = DOM.container.clientWidth;
+    const containerH = DOM.container.clientHeight;
 
     //recalculate layout for new width
     const layout = BrickLayoutSystem.calculate(DOM.container.clientWidth, cols);
@@ -102,12 +149,51 @@ export function handleResize(DOM) {
       brick.updatePosition();
     });
 
+    // Paddle — reposition and resize
+    if (currentPaddle) {
+      const cfg = currentPaddle.config;
+      const newWidth = Math.max(60, Math.round(cfg.widthFraction * containerW));
+      currentPaddle.setWidth(newWidth);
+      currentPaddle.setX(Math.floor((containerW - newWidth) / 2));
+      currentPaddle.y = Math.floor(containerH - currentPaddle.height - 30);
+      currentPaddle.updatePosition();
+    }
+
+    // Ball — rescale radius and speed, reposition
+    if (currentBall && !currentBall.attachedTo) {
+      const newRadius = Math.max(3, Math.round(containerH * 0.012));
+      const oldSpeed = currentBall.getSpeed();
+      const newBaseSpeed =
+        containerH * 0.7 * (currentBall.config.speedMultiplier || 1);
+
+      // preserve direction, apply new speed magnitude
+      if (oldSpeed > 0) {
+        const ratio = newBaseSpeed / oldSpeed;
+        currentBall.speedX *= ratio;
+        currentBall.speedY *= ratio;
+      }
+
+      currentBall.radius = newRadius;
+      currentBall.updateElement();
+
+      // keep ball in bounds after resize
+      currentBall.x = Math.min(currentBall.x, containerW - newRadius * 2);
+      currentBall.y = Math.min(currentBall.y, containerH - newRadius * 2);
+    } else if (currentBall && currentBall.attachedTo) {
+      // ball is sitting on paddle — just snap it to new paddle position
+      const newRadius = Math.max(3, Math.round(containerH * 0.012));
+      currentBall.radius = newRadius;
+      currentBall.updateElement();
+      currentBall.x =
+        currentPaddle.x + (currentPaddle.width - newRadius * 2) / 2;
+      currentBall.y = currentPaddle.y - newRadius * 2 - 2;
+    }
+
+    // Keep game state container size in sync
+    gameState.setContainerSize(containerW, containerH);
+
     console.log(
       `Resized: Container ${DOM.container.offsetWidth}px, Brick ${layout.width}x${layout.height}px`,
     );
   }, 150);
-}
-
-export function getCurrentLevel() {
-  return currentLevel;
 }

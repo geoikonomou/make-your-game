@@ -1,6 +1,13 @@
 import { setupUI } from "./controllers/ui-controller.js";
-import { startLevel } from "./controllers/level-controller.js";
 
+/**
+ * Entry point for the Brick Breaker game.
+ *
+ * Waits for the DOM to be ready, builds a structured DOM reference object,
+ * and initializes UI bindings via {@link setupUI}.
+ *
+ * @event DOMContentLoaded
+ */
 document.addEventListener("DOMContentLoaded", () => {
   const DOM = {
     container: document.getElementById("gameContainer"),
@@ -30,8 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   };
   setupUI(DOM);
-
-  // startLevel(1, DOM);
 
   console.log("Arkanoid initialized!");
   console.log("Controls:");

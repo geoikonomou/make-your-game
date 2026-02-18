@@ -7,15 +7,26 @@ import {
 } from "./level-controller.js";
 import { showScreen } from "./screen-controller.js";
 import { audioManager } from "../audio/audio-manager.js";
-import { enterGameMode } from "../core/game-engine.js";
+// import { enterGameMode } from "../core/game-engine.js";
 
+/**
+ * Initializes all UI event listeners and binds user interactions
+ * to game systems (audio, level loading, screen transitions, etc.).
+ *
+ * @param {Object} DOM - Centralized DOM reference object.
+ * @param {HTMLElement} DOM.container
+ * @param {HTMLElement} DOM.bricksContainer
+ * @param {HTMLElement} DOM.levelDisplay
+ * @param {Object} DOM.screens
+ * @param {Object} DOM.buttons
+ */
 export function setupUI(DOM) {
   // --- Main Menu ---
   DOM.buttons.play.addEventListener("click", () => {
     startMusic();
     audioManager?.playSfx?.("gameStart");
-    audioManager.settings.selectedlevel = 1;
     showScreen("game", DOM);
+    startLevel(1, DOM);
     // enterGameMode();
   });
 
@@ -38,17 +49,16 @@ export function setupUI(DOM) {
 
   // --- Level buttons ---
   DOM.buttons.levelButtons.forEach((btn) => {
-    btn.addEventListener("click", function() {
-      audioManager?.settings &&
-        (audioManager.settings.selectedLevel = parseInt(this.dataset.level));
+    btn.addEventListener("click", function () {
+      const level = parseInt(this.dataset.level);
       showScreen("game", DOM);
-      startLevel(parseInt(this.dataset.level), DOM);
+      startLevel(level, DOM);
     });
   });
 
   //back to menu buttons
   DOM.buttons.backtoMenuButtons.forEach((btn) => {
-    btn.addEventListener("click", function() {
+    btn.addEventListener("click", function () {
       showScreen("menu", DOM);
     });
   });
@@ -83,7 +93,7 @@ export function setupUI(DOM) {
   });
 
   // --- Resize ---
-  window.addEventListener("resize", () => handleResize(DOM));
+  window.addEventListener("resize", () => handleResize(getCurrentLevel(), DOM));
   // --- Debug ---
   window.testBrickHit = () => {
     const bricks = getCurrentBricks().filter((b) => b.isActive());

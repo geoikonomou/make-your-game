@@ -9,15 +9,19 @@ import {
   DEFAULT_PADDLE_BOTTOM_OFFSET,
   PADDLE_LIMITS,
 } from "../config/paddle-config.js";
-import { BALL_CONFIG, DEFAULT_BALL_TYPE, DEFAULT_BALL_FROM_PADDLE } from "../config/ball-config.js";
+import {
+  BALL_CONFIG,
+  DEFAULT_BALL_TYPE,
+  DEFAULT_BALL_FROM_PADDLE,
+} from "../config/ball-config.js";
 
 /**
  * LevelSystem
  * Responsible for:
- * - Loading level data
+ * - Loading and validating level data/configuration
  * - Creating brick entities
- * - Level validation
- * - Win condition support
+ * - Creating Paddle and Ball entities
+ * - Providing level metadata utilities
  */
 export class LevelSystem {
   /**
@@ -47,30 +51,29 @@ export class LevelSystem {
   }
 
   /**
-   * Create brick entities from level layout
-   * @param {number} levelNumber - The level number to load (1-based)
-   * @param {object} layout - Layout configuration calculated by BrickLayoutSystem
-   * @param {number} layout.width - Width of each brick in pixels
-   * @param {number} layout.height - Height of each brick in pixels
-   * @param {number} layout.padding - Spacing between bricks in pixels
-   * @param {number} layout.offsetLeft - Horizontal offset from left edge
-   * @param {number} layout.offsetTop - Vertical offset from top edge
-   * @param {number} layout.cols - Number of columns in the brick grid
-   * @returns {Brick[]} Array of Brick entities, or empty array if level not found
+   * Create a Ball entity positioned above the paddle.
+   *
+   * Ball:
+   * - Is horizontally centered on the paddle
+   * - Spawns slightly above it
+   * - Receives an initial upward velocity with slight random angle variation
+   *
+   * @param {Paddle} paddle - Paddle instance the ball should spawn from.
+   * @param {number} containerH - Height of the game container in pixels.
+   * @param {string} [type=DEFAULT_BALL_TYPE] - Ball configuration type key.
+   *
+   * @returns {Ball} Newly created Ball instance.
    */
-  static createBall(
-    paddle,
-    type = DEFAULT_BALL_TYPE,
-  ) {
+  static createBall(paddle, containerH, type = DEFAULT_BALL_TYPE) {
     const cfg = BALL_CONFIG[type] || BALL_CONFIG[DEFAULT_BALL_TYPE];
-    const radius = cfg.radius;
+    const radius = Math.max(3, Math.round(containerH * 0.012));
 
     // Position ball centered on paddle, slightly above it
     const x = Math.floor(paddle.x + (paddle.width - radius * 2) / 2);
     const y = Math.floor(paddle.y - radius * 2 - DEFAULT_BALL_FROM_PADDLE);
 
     // base speed (px/sec) and slight random angle for variation
-    const baseSpeed = 360 * (cfg.speedMultiplier || 1);
+    const baseSpeed = containerH * 0.7 * (cfg.speedMultiplier || 1);
     const angle = -Math.PI / 4 + (Math.random() - 0.5) * 0.3;
     const speedX = Math.cos(angle) * baseSpeed;
     const speedY = Math.sin(angle) * baseSpeed;
@@ -80,6 +83,18 @@ export class LevelSystem {
     return ball;
   }
 
+  /**
+   * Create a Paddle entity centered horizontally near the bottom
+   * of the container.
+   *
+   * Width is responsive based on container size and paddle config.
+   *
+   * @param {number} containerWidth - Width of the game container in pixels.
+   * @param {number} containerHeight - Height of the game container in pixels.
+   * @param {string} [type=DEFAULT_PADDLE_TYPE] - Paddle configuration type key.
+   *
+   * @returns {Paddle} Newly created Paddle instance.
+   */
   static createPaddle(
     containerWidth,
     containerHeight,
@@ -115,6 +130,18 @@ export class LevelSystem {
     return paddle;
   }
 
+  /**
+   * Create brick entities from level layout
+   * @param {number} levelNumber - The level number to load (1-based)
+   * @param {object} layout - Layout configuration calculated by BrickLayoutSystem
+   * @param {number} layout.width - Width of each brick in pixels
+   * @param {number} layout.height - Height of each brick in pixels
+   * @param {number} layout.padding - Spacing between bricks in pixels
+   * @param {number} layout.offsetLeft - Horizontal offset from left edge
+   * @param {number} layout.offsetTop - Vertical offset from top edge
+   * @param {number} layout.cols - Number of columns in the brick grid
+   * @returns {Brick[]} Array of Brick entities, or empty array if level not found
+   */
   static createBricks(levelNumber, layout) {
     const level = this.getLevel(levelNumber);
     if (!level) return [];
