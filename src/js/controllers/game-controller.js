@@ -1,6 +1,6 @@
-import { getCurrentBricks, getCurrentLevel } from "./level-controller.js";
+// import { getCurrentBricks, getCurrentLevel } from "./level-controller.js";
 import {
-  startGame,
+  // startGame,
   enterGameMode as engineEnterGameMode,
 } from "../core/game-engine.js";
 

@@ -54,10 +54,7 @@ export function update(dt) {
     }
 
     // paddle collision
-    if (
-      gameState.paddle &&
-      rectCircleCollision(gameState.paddle, ball)
-    ) {
+    if (gameState.paddle && rectCircleCollision(gameState.paddle, ball)) {
       console.log("Paddle hit!");
       // if paddle sticky, attach
       if (gameState.paddle.sticky) {
@@ -90,7 +87,12 @@ export function update(dt) {
       if (!brick || !brick.isActive || !brick.isActive()) continue;
 
       const b = brick.getBounds();
-      const rect = { x: b.left, y: b.top, width: b.right - b.left, height: b.bottom - b.top };
+      const rect = {
+        x: b.left,
+        y: b.top,
+        width: b.right - b.left,
+        height: b.bottom - b.top,
+      };
 
       if (!rectCircleCollision(rect, ball)) continue;
 

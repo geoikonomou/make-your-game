@@ -7,6 +7,19 @@ let currentLevel = 1;
 let currentPaddle = null;
 let currentBall = null;
 
+/**
+ * Initializes and loads a level.
+ *
+ * Responsibilities:
+ * - Clears previous entities
+ * - Generates brick layout
+ * - Creates paddle and ball
+ * - Mounts everything into the DOM
+ * - Enters active game mode
+ *
+ * @param {number} levelNumber - Level index to load.
+ * @param {Object} DOM - Centralized DOM reference object.
+ */
 export function startLevel(levelNumber, DOM) {
   currentLevel = levelNumber;
 
@@ -68,27 +81,58 @@ export function startLevel(levelNumber, DOM) {
   enterGameMode();
 }
 
+/**
+ * Returns current active brick instances
+ *
+ * @returns {Array<Object>} Array of brick entities.
+ */
 export function getCurrentBricks() {
   return currentBricks;
 }
 
+/**
+ * Returns the currently active paddle entity.
+ *
+ * @returns {Object|null}
+ */
 export function getCurrentPaddle() {
   return currentPaddle;
 }
 
+/**
+ * Returns the currently active ball entity.
+ *
+ * @returns {Object|null}
+ */
 export function getCurrentBall() {
   return currentBall;
 }
 
+/**
+ * Returns the currently loaded level number.
+ *
+ * @returns {number}
+ */
+export function getCurrentLevel() {
+  return currentLevel;
+}
+
 let resizeTimeout;
+/**
+ * Handles responsive recalculation of brick layout when the window resizes.
+ *
+ * Debounced to prevent excessive recalculations.
+ *
+ * @param {Object} DOM - Centralized DOM reference object.
+ */
 export function handleResize(DOM) {
   if (currentBricks.length === 0) return;
 
-  console.log(DOM.container);
+  // console.log(DOM.container);
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
     // recalculate columns from this level
-    const cols = LevelSystem.getMaxColumns(levelNumber);
+    const cols = LevelSystem.getMaxColumns();
 
     //recalculate layout for new width
     const layout = BrickLayoutSystem.calculate(DOM.container.clientWidth, cols);
@@ -106,8 +150,4 @@ export function handleResize(DOM) {
       `Resized: Container ${DOM.container.offsetWidth}px, Brick ${layout.width}x${layout.height}px`,
     );
   }, 150);
-}
-
-export function getCurrentLevel() {
-  return currentLevel;
 }

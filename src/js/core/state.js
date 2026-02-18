@@ -155,4 +155,3 @@ export function createGameState(DOM = null) {
   gameState.resetForLevel(level || 1, DOM);
   return gameState;
 }
-

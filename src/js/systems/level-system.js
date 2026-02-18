@@ -9,7 +9,11 @@ import {
   DEFAULT_PADDLE_BOTTOM_OFFSET,
   PADDLE_LIMITS,
 } from "../config/paddle-config.js";
-import { BALL_CONFIG, DEFAULT_BALL_TYPE, DEFAULT_BALL_FROM_PADDLE } from "../config/ball-config.js";
+import {
+  BALL_CONFIG,
+  DEFAULT_BALL_TYPE,
+  DEFAULT_BALL_FROM_PADDLE,
+} from "../config/ball-config.js";
 
 /**
  * LevelSystem
@@ -58,10 +62,7 @@ export class LevelSystem {
    * @param {number} layout.cols - Number of columns in the brick grid
    * @returns {Brick[]} Array of Brick entities, or empty array if level not found
    */
-  static createBall(
-    paddle,
-    type = DEFAULT_BALL_TYPE,
-  ) {
+  static createBall(paddle, type = DEFAULT_BALL_TYPE) {
     const cfg = BALL_CONFIG[type] || BALL_CONFIG[DEFAULT_BALL_TYPE];
     const radius = cfg.radius;
 
