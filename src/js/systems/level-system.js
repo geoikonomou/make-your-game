@@ -18,10 +18,10 @@ import {
 /**
  * LevelSystem
  * Responsible for:
- * - Loading level data
+ * - Loading and validating level data/configuration
  * - Creating brick entities
- * - Level validation
- * - Win condition support
+ * - Creating Paddle and Ball entities
+ * - Providing level metadata utilities
  */
 export class LevelSystem {
   /**
@@ -50,6 +50,20 @@ export class LevelSystem {
     return levelNumber in LEVELS;
   }
 
+  /**
+   * Create a Ball entity positioned above the paddle.
+   *
+   * Ball:
+   * - Is horizontally centered on the paddle
+   * - Spawns slightly above it
+   * - Receives an initial upward velocity with slight random angle variation
+   *
+   * @param {Paddle} paddle - Paddle instance the ball should spawn from.
+   * @param {number} containerH - Height of the game container in pixels.
+   * @param {string} [type=DEFAULT_BALL_TYPE] - Ball configuration type key.
+   *
+   * @returns {Ball} Newly created Ball instance.
+   */
   static createBall(paddle, containerH, type = DEFAULT_BALL_TYPE) {
     const cfg = BALL_CONFIG[type] || BALL_CONFIG[DEFAULT_BALL_TYPE];
     const radius = Math.max(3, Math.round(containerH * 0.012));
@@ -69,6 +83,18 @@ export class LevelSystem {
     return ball;
   }
 
+  /**
+   * Create a Paddle entity centered horizontally near the bottom
+   * of the container.
+   *
+   * Width is responsive based on container size and paddle config.
+   *
+   * @param {number} containerWidth - Width of the game container in pixels.
+   * @param {number} containerHeight - Height of the game container in pixels.
+   * @param {string} [type=DEFAULT_PADDLE_TYPE] - Paddle configuration type key.
+   *
+   * @returns {Paddle} Newly created Paddle instance.
+   */
   static createPaddle(
     containerWidth,
     containerHeight,
