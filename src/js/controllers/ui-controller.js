@@ -93,7 +93,7 @@ export function setupUI(DOM) {
   });
 
   // --- Resize ---
-  window.addEventListener("resize", () => handleResize(DOM));
+  window.addEventListener("resize", () => handleResize(getCurrentLevel(), DOM));
   // --- Debug ---
   window.testBrickHit = () => {
     const bricks = getCurrentBricks().filter((b) => b.isActive());

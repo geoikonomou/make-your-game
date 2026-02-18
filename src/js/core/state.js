@@ -133,14 +133,14 @@ export class GameState {
 
     if (DOM && DOM.container) {
       this.setContainerSize(
-        DOM.container.offsetWidth,
-        DOM.container.offsetHeight,
+        DOM.container.clientWidth,
+        DOM.container.clientHeight,
       );
     } else {
       const c =
         typeof document !== "undefined" &&
         document.getElementById("gameContainer");
-      if (c) this.setContainerSize(c.offsetWidth, c.offsetHeight);
+      if (c) this.setContainerSize(c.clientWidth, c.clientHeight);
     }
 
     this.mode = "READY";

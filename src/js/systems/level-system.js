@@ -50,28 +50,16 @@ export class LevelSystem {
     return levelNumber in LEVELS;
   }
 
-  /**
-   * Create brick entities from level layout
-   * @param {number} levelNumber - The level number to load (1-based)
-   * @param {object} layout - Layout configuration calculated by BrickLayoutSystem
-   * @param {number} layout.width - Width of each brick in pixels
-   * @param {number} layout.height - Height of each brick in pixels
-   * @param {number} layout.padding - Spacing between bricks in pixels
-   * @param {number} layout.offsetLeft - Horizontal offset from left edge
-   * @param {number} layout.offsetTop - Vertical offset from top edge
-   * @param {number} layout.cols - Number of columns in the brick grid
-   * @returns {Brick[]} Array of Brick entities, or empty array if level not found
-   */
-  static createBall(paddle, type = DEFAULT_BALL_TYPE) {
+  static createBall(paddle, containerH, type = DEFAULT_BALL_TYPE) {
     const cfg = BALL_CONFIG[type] || BALL_CONFIG[DEFAULT_BALL_TYPE];
-    const radius = cfg.radius;
+    const radius = Math.max(3, Math.round(containerH * 0.012));
 
     // Position ball centered on paddle, slightly above it
     const x = Math.floor(paddle.x + (paddle.width - radius * 2) / 2);
     const y = Math.floor(paddle.y - radius * 2 - DEFAULT_BALL_FROM_PADDLE);
 
     // base speed (px/sec) and slight random angle for variation
-    const baseSpeed = 360 * (cfg.speedMultiplier || 1);
+    const baseSpeed = containerH * 0.7 * (cfg.speedMultiplier || 1);
     const angle = -Math.PI / 4 + (Math.random() - 0.5) * 0.3;
     const speedX = Math.cos(angle) * baseSpeed;
     const speedY = Math.sin(angle) * baseSpeed;
@@ -116,6 +104,18 @@ export class LevelSystem {
     return paddle;
   }
 
+  /**
+   * Create brick entities from level layout
+   * @param {number} levelNumber - The level number to load (1-based)
+   * @param {object} layout - Layout configuration calculated by BrickLayoutSystem
+   * @param {number} layout.width - Width of each brick in pixels
+   * @param {number} layout.height - Height of each brick in pixels
+   * @param {number} layout.padding - Spacing between bricks in pixels
+   * @param {number} layout.offsetLeft - Horizontal offset from left edge
+   * @param {number} layout.offsetTop - Vertical offset from top edge
+   * @param {number} layout.cols - Number of columns in the brick grid
+   * @returns {Brick[]} Array of Brick entities, or empty array if level not found
+   */
   static createBricks(levelNumber, layout) {
     const level = this.getLevel(levelNumber);
     if (!level) return [];
