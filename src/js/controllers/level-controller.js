@@ -183,14 +183,13 @@ export function handleResize(levelNumber, DOM) {
       currentBall.y = (currentBall.y / oldContainerH) * containerH;
 
       const newRadius = Math.max(3, Math.round(containerH * 0.012));
-      const oldSpeed = currentBall.getSpeed();
       const newBaseSpeed =
         containerH * 0.7 * (currentBall.config.speedMultiplier || 1);
 
+      const oldSpeed = currentBall.getSpeed();
       if (oldSpeed > 0) {
-        const ratio = newBaseSpeed / oldSpeed;
-        currentBall.speedX *= ratio;
-        currentBall.speedY *= ratio;
+        currentBall.speedX = (currentBall.speedX / oldSpeed) * newBaseSpeed;
+        currentBall.speedY = (currentBall.speedY / oldSpeed) * newBaseSpeed;
       }
 
       currentBall.radius = newRadius;
