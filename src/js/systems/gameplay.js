@@ -1,5 +1,6 @@
 import { getInput } from "./inputs.js";
 import { gameState } from "../core/state.js";
+import powerupSystem from "./powerup-system.js";
 
 // AABB collision (circle vs rect)
 function rectCircleCollision(rect, ball) {
@@ -199,6 +200,17 @@ export function update(dt) {
       // if destroyed, remove from game state and call destroy() already called inside brick.hit()
       if (destroyed) {
         bricks.splice(i, 1);
+
+        // attempt to spawn a powerup for this destroyed brick
+        // uses POWERUP_SPAWN_SETTINGS for chance and weighted pick
+        try {
+          console.log("hello");
+          powerupSystem.trySpawnFromBrick(brick, { allowSpawn: true });
+        } catch (e) {
+          // do not let spawn errors break gameplay loop
+          // eslint-disable-next-line no-console
+          console.error("powerup spawn error", e);
+        }
       }
 
       // if the ball didn't pierce, reflect based on collision axis and stop checking more bricks
@@ -231,5 +243,14 @@ export function update(dt) {
       }
       // if pierced, continue checking other bricks
     }
+  }
+
+  // update powerups (advance y, expiry, collision with paddle)
+  try {
+    powerupSystem.update(dt);
+  } catch (e) {
+    // don't let powerup update errors break the main loop
+    // eslint-disable-next-line no-console
+    console.error("powerupSystem update error", e);
   }
 }

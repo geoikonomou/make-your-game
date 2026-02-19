@@ -72,6 +72,8 @@ export class Powerup {
   }
 
   // dt in seconds
+  // NOTE: movement (y advancement) will be handled by gameplay.update(dt)
+  // this.update only handles expiry / offscreen removal without mutating DOM
   update(
     dt = 0,
     {
@@ -81,9 +83,10 @@ export class Powerup {
   ) {
     if (this.collected || this.removed) return;
 
+    // advance Y position (movement) is intentionally kept here so gameplay
+    // can control physics. It does NOT call updatePosition() — render will do that.
     const dy = (fallSpeedPxPerSec || 120) * dt;
     this.y += dy;
-    this.updatePosition();
 
     // auto-expire if below container or time exceeded
     const now = performance.now();

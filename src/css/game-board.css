@@ -312,3 +312,97 @@
     font-size: 0.9rem;
   }
 }
+
+/* Powerup visuals (simple, high-contrast badges for debugging) */
+.powerup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute; /* entities set transform via inline styles */
+  font-family: monospace;
+  font-size: 10px;
+  color: #fff;
+  text-transform: uppercase;
+  border-radius: 6px;
+  padding: 2px;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  pointer-events: none; /* game logic handles collection */
+  transition:
+    transform 150ms ease,
+    opacity 200ms ease;
+}
+
+/* Labels for each powerup type (ASCII tokens for quick identification) */
+.powerup--life::after {
+  content: "1UP";
+  font-weight: 700;
+}
+.powerup--score::after {
+  content: "PTS";
+  font-weight: 700;
+}
+.powerup--multi::after {
+  content: "MULTI";
+  font-weight: 700;
+  font-size: 9px;
+}
+.powerup--bomb::after {
+  content: "BMB";
+  font-weight: 700;
+}
+.powerup--expand::after {
+  content: "EXP";
+  font-weight: 700;
+}
+.powerup--sticky::after {
+  content: "STK";
+  font-weight: 700;
+}
+.powerup--pierce::after {
+  content: "PRC";
+  font-weight: 700;
+}
+.powerup--slow::after {
+  content: "SLOW";
+  font-weight: 700;
+  font-size: 9px;
+}
+
+/* Distinct colors to make them easy to spot */
+.powerup--life {
+  background: linear-gradient(135deg, #ff6b6b, #ff4757);
+}
+.powerup--score {
+  background: linear-gradient(135deg, #ffd166, #ffb703);
+  color: #222;
+}
+.powerup--multi {
+  background: linear-gradient(135deg, #7bdff6, #4cc9f0);
+}
+.powerup--bomb {
+  background: linear-gradient(135deg, #b891ff, #7c3aed);
+}
+.powerup--expand {
+  background: linear-gradient(135deg, #9ae6b4, #68d391);
+  color: #05201a;
+}
+.powerup--sticky {
+  background: linear-gradient(135deg, #fbcfe8, #f472b6);
+  color: #2b0217;
+}
+.powerup--pierce {
+  background: linear-gradient(135deg, #a3e635, #84cc16);
+  color: #10200a;
+}
+.powerup--slow {
+  background: linear-gradient(135deg, #c7d2fe, #a78bfa);
+}
+
+/* Collected state */
+.powerup--collected {
+  opacity: 0.8;
+  transform: scale(0.9) translateY(-6px);
+}
