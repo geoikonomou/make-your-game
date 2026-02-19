@@ -2,6 +2,7 @@ import { BrickLayoutSystem } from "../systems/brick-layout-system.js";
 import { enterGameMode } from "../core/game-engine.js";
 import { LevelSystem } from "../systems/level-system.js";
 import { gameState } from "../core/state.js";
+import { DEFAULT_BALL_FROM_PADDLE } from "../config/ball-config.js";
 
 let currentBricks = [];
 let currentLevel = 1;
@@ -61,9 +62,15 @@ export function startLevel(levelNumber, DOM) {
 
   const layout = BrickLayoutSystem.calculate(DOM.container.clientWidth, cols);
   currentBricks = LevelSystem.createBricks(levelNumber, layout);
+
   // create paddle and ball based on the same container dimensions
   const containerW = DOM.container.clientWidth;
   const containerH = DOM.container.clientHeight;
+
+  // Sync game state container size before creating entities so resize
+  // calculations always have an accurate baseline to work from
+  gameState.setContainerSize(containerW, containerH);
+
   currentPaddle = LevelSystem.createPaddle(containerW, containerH);
   currentBall = LevelSystem.createBall(currentPaddle, containerH);
 
@@ -127,20 +134,30 @@ let resizeTimeout;
  *
  * Debounced to prevent excessive recalculations.
  *
+ * @param {number} levelNumber - Current level number.
  * @param {Object} DOM - Centralized DOM reference object.
  */
 export function handleResize(levelNumber, DOM) {
   if (currentBricks.length === 0 && !currentPaddle) return;
 
-  // console.log(DOM.container);
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
-    // recalculate columns from this level
     const cols = LevelSystem.getMaxColumns(levelNumber);
     const containerW = DOM.container.clientWidth;
     const containerH = DOM.container.clientHeight;
 
-    //recalculate layout for new width
+    // Capture old dimensions before updating state — needed for proportional
+    // position scaling of moving entities
+    const oldContainerW = gameState.container.width;
+    const oldContainerH = gameState.container.height;
+    console.log(
+      "attachedTo:",
+      currentBall.attachedTo,
+      "mode:",
+      gameState.getMode(),
+    );
+
+    // Recalculate brick layout for new container width
     const layout = BrickLayoutSystem.calculate(DOM.container.clientWidth, cols);
     console.log("this is the container width", DOM.container.offsetWidth);
 
@@ -152,24 +169,30 @@ export function handleResize(levelNumber, DOM) {
       brick.updatePosition();
     });
 
-    // Paddle — reposition and resize
+    // Paddle — preserve relative horizontal position, resize width, snap Y to bottom
     if (currentPaddle) {
       const cfg = currentPaddle.config;
+      const relativeX = currentPaddle.x / (oldContainerW || containerW);
       const newWidth = Math.max(60, Math.round(cfg.widthFraction * containerW));
       currentPaddle.setWidth(newWidth);
-      currentPaddle.setX(Math.floor((containerW - newWidth) / 2));
+      currentPaddle.setX(Math.floor(relativeX * containerW));
       currentPaddle.y = Math.floor(containerH - currentPaddle.height - 30);
       currentPaddle.updatePosition();
     }
 
     // Ball — rescale radius and speed, reposition
-    if (currentBall && !currentBall.attachedTo) {
+    const isReady = gameState.getMode() === "READY";
+
+    if (currentBall && !currentBall.attachedTo && !isReady) {
+      // Moving ball — scale position and speed proportionally
+      currentBall.x = (currentBall.x / oldContainerW) * containerW;
+      currentBall.y = (currentBall.y / oldContainerH) * containerH;
+
       const newRadius = Math.max(3, Math.round(containerH * 0.012));
       const oldSpeed = currentBall.getSpeed();
       const newBaseSpeed =
         containerH * 0.7 * (currentBall.config.speedMultiplier || 1);
 
-      // preserve direction, apply new speed magnitude
       if (oldSpeed > 0) {
         const ratio = newBaseSpeed / oldSpeed;
         currentBall.speedX *= ratio;
@@ -178,21 +201,23 @@ export function handleResize(levelNumber, DOM) {
 
       currentBall.radius = newRadius;
       currentBall.updateElement();
-
-      // keep ball in bounds after resize
-      currentBall.x = Math.min(currentBall.x, containerW - newRadius * 2);
-      currentBall.y = Math.min(currentBall.y, containerH - newRadius * 2);
-    } else if (currentBall && currentBall.attachedTo) {
-      // ball is sitting on paddle — just snap it to new paddle position
+    } else if (currentBall) {
+      // Attached or READY — snap ball to paddle (paddle already repositioned above)
       const newRadius = Math.max(3, Math.round(containerH * 0.012));
       currentBall.radius = newRadius;
+      currentBall.x = Math.max(
+        0,
+        Math.min(
+          currentPaddle.x + (currentPaddle.width - newRadius * 2) / 2,
+          containerW - newRadius * 2,
+        ),
+      );
+      currentBall.y =
+        currentPaddle.y - newRadius * 2 - DEFAULT_BALL_FROM_PADDLE;
       currentBall.updateElement();
-      currentBall.x =
-        currentPaddle.x + (currentPaddle.width - newRadius * 2) / 2;
-      currentBall.y = currentPaddle.y - newRadius * 2 - 2;
     }
 
-    // Keep game state container size in sync
+    // Keep game state container size in sync — must happen after old values are used above
     gameState.setContainerSize(containerW, containerH);
 
     console.log(
