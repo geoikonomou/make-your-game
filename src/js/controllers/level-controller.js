@@ -79,6 +79,9 @@ export function startLevel(levelNumber, DOM) {
 
   DOM.levelDisplay.textContent = levelNumber;
   console.log(`Level ${levelNumber} loaded: ${currentBricks.length} bricks`);
+
+  // Reset mode so Space can start the game again
+  gameState.setMode("READY");
   enterGameMode();
 }
 
