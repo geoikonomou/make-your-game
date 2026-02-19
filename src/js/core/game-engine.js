@@ -1,5 +1,5 @@
 import { initInput } from "../systems/inputs.js";
-import { startLoop } from "./loop.js";
+import { startLoop, stopLoop } from "./loop.js";
 import { stopGameInputListeners } from "../systems/inputs.js";
 import { gameState, createGameState } from "./state.js";
 
@@ -32,4 +32,5 @@ export function enterGameMode(DOM = null) {
 export function stopListeners() {
   stopGameInputListeners();
   window.removeEventListener("keydown", spaceHandler);
+  stopLoop();
 }

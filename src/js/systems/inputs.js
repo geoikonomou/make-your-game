@@ -15,7 +15,6 @@ export function initInput() {
 export function stopGameInputListeners() {
   window.removeEventListener("keydown", arrowKeysDownHandler);
   window.removeEventListener("keyup", arrowKeysUpHandler);
-  initialized = false;
 }
 
 export function getInput() {
