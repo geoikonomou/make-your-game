@@ -139,14 +139,14 @@ export function update(dt) {
             ball.speedX = horizSign * horizMag;
             ball.speedY = newSpeedY;
 
-            // nudge ball outside paddle horizontally so it won't re-collide this frame
-            ball.x =
-              horizSign > 0
-                ? paddleRect.x + paddleRect.width + 0.5
-                : paddleRect.x - ball.radius * 2 - 0.5;
+            // // nudge ball outside paddle horizontally so it won't re-collide this frame
+            // ball.x =
+            //   horizSign > 0
+            //     ? paddleRect.x + paddleRect.width
+            //     : paddleRect.x - ball.radius * 2;
           } else {
             // top hit: clamp above and compute new velocity based on hit position
-            ball.y = paddleRect.y - ball.radius * 2;
+            // ball.y = paddleRect.y - ball.radius * 2;
             let hitPos =
               (ball.x + ball.radius - (paddleRect.x + paddleRect.width / 2)) /
               (paddleRect.width / 2);
