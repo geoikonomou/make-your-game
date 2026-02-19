@@ -1,5 +1,28 @@
 import { getInput } from "./inputs.js";
 import { gameState } from "../core/state.js";
+import { LevelSystem } from "./level-system.js";
+import { BRICK_TYPES } from "../config/brick-config.js";
+
+/**
+ * Respawn a new ball on the paddle after losing a life.
+ */
+function respawnBall() {
+  const paddle = gameState.getPaddle();
+  if (!paddle) return;
+
+  const containerH = gameState.container.height;
+  const newBall = LevelSystem.createBall(paddle, containerH);
+
+  // Add the new ball element into the game container
+  const container = document.getElementById("gameContainer");
+  if (container && newBall.element) {
+    container.appendChild(newBall.element);
+  }
+
+  gameState.addBall(newBall);
+  // Pause so the player can prepare — Space to resume
+  gameState.setMode("PAUSED");
+}
 
 // AABB collision
 function rectCircleCollision(rect, ball) {
@@ -43,12 +66,28 @@ export function update(dt) {
 
     const hit = ball.checkWallCollision(w, h);
     if (hit === "BOTTOM") {
+      // remove ball element from DOM
+      if (ball.element && ball.element.parentNode) {
+        ball.element.remove();
+      }
       // remove ball and handle life loss if no balls remain
       gameState.removeBall(ball);
       if (gameState.getBalls().length === 0) {
         gameState.loseLife();
         console.log("Ball lost! Lives remaining:", gameState.lives);
-        // TODO: respawn ball or reset level
+
+        if (gameState.lives > 0) {
+          // Respawn a new ball on the paddle
+          respawnBall();
+        } else {
+          // Game over — save high score
+          const stored = parseInt(localStorage.getItem("highScore") || "0", 10);
+          if (gameState.score > stored) {
+            localStorage.setItem("highScore", gameState.score.toString());
+          }
+          gameState.setMode("GAME_OVER");
+          console.log("GAME OVER! Final score:", gameState.score);
+        }
       }
       continue;
     }
@@ -147,5 +186,20 @@ export function update(dt) {
       }
       // if pierced, continue checking other bricks
     }
+  }
+
+  // --- Win check: all breakable bricks destroyed ---
+  const remainingBricks = gameState.getBricks();
+  const breakableLeft = remainingBricks.some(
+    (b) => b.isActive() && b.type !== BRICK_TYPES.UNBREAKABLE,
+  );
+  if (!breakableLeft) {
+    // Save high score
+    const stored = parseInt(localStorage.getItem("highScore") || "0", 10);
+    if (gameState.score > stored) {
+      localStorage.setItem("highScore", gameState.score.toString());
+    }
+    gameState.setMode("PAUSED");
+    console.log(`Level ${gameState.level} complete! Score: ${gameState.score}`);
   }
 }

@@ -7,6 +7,7 @@ import {
 } from "./level-controller.js";
 import { showScreen } from "./screen-controller.js";
 import { audioManager } from "../audio/audio-manager.js";
+import { setRenderDOM } from "../systems/render.js";
 // import { enterGameMode } from "../core/game-engine.js";
 
 /**
@@ -21,6 +22,15 @@ import { audioManager } from "../audio/audio-manager.js";
  * @param {Object} DOM.buttons
  */
 export function setupUI(DOM) {
+  // Provide HUD DOM references to the render system
+  setRenderDOM(DOM);
+
+  // Load saved high score on startup
+  if (DOM.highScoreDisplay) {
+    const stored = parseInt(localStorage.getItem("highScore") || "0", 10);
+    DOM.highScoreDisplay.textContent = stored;
+  }
+
   // --- Main Menu ---
   DOM.buttons.play.addEventListener("click", () => {
     startMusic();

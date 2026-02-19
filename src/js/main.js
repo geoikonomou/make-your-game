@@ -13,6 +13,10 @@ document.addEventListener("DOMContentLoaded", () => {
     container: document.getElementById("gameContainer"),
     bricksContainer: document.getElementById("bricksContainer"),
     levelDisplay: document.getElementById("levelDisplay"),
+    scoreDisplay: document.getElementById("scoreDisplay"),
+    highScoreDisplay: document.getElementById("highScoreDisplay"),
+    timeDisplay: document.getElementById("timeDisplay"),
+    livesDisplay: document.getElementById("livesDisplay"),
     screens: {
       menu: document.getElementById("mainMenu"),
       levels: document.getElementById("levelScreen"),
