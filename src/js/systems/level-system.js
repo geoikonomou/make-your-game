@@ -80,6 +80,9 @@ export class LevelSystem {
 
     const ball = new Ball({ x, y, type, radius, speedX, speedY });
 
+    // Store intended base speed so resize can normalize against it cleanly
+    ball.baseSpeed = baseSpeed;
+
     return ball;
   }
 
