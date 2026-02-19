@@ -205,6 +205,14 @@ export function handleResize(levelNumber, DOM) {
           containerW - newRadius * 2,
         ),
       );
+      const newBaseSpeed =
+        containerH * 0.7 * (currentBall.config.speedMultiplier || 1);
+
+      const oldSpeed = currentBall.getSpeed();
+      if (oldSpeed > 0) {
+        currentBall.speedX = (currentBall.speedX / oldSpeed) * newBaseSpeed;
+        currentBall.speedY = (currentBall.speedY / oldSpeed) * newBaseSpeed;
+      }
       currentBall.y =
         currentPaddle.y - newRadius * 2 - DEFAULT_BALL_FROM_PADDLE;
       currentBall.updateElement();
