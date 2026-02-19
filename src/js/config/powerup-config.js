@@ -18,7 +18,7 @@ export const POWERUP_CONFIG = {
     description: "Grants one additional life immediately",
     category: "instant",
     durationMs: 0,
-    weight: 1,
+    weight: 0,
     iconClass: "powerup--life",
   },
 
@@ -28,7 +28,7 @@ export const POWERUP_CONFIG = {
     category: "instant",
     bonusPoints: 500,
     durationMs: 0,
-    weight: 6,
+    weight: 0,
     iconClass: "powerup--score",
   },
 
@@ -37,7 +37,7 @@ export const POWERUP_CONFIG = {
     description: "Spawn additional balls from the paddle",
     category: "instant",
     durationMs: 0,
-    weight: 3,
+    weight: 0,
     iconClass: "powerup--multi",
   },
 
@@ -47,7 +47,7 @@ export const POWERUP_CONFIG = {
     category: "instant",
     blastRadiusPx: 80,
     durationMs: 0,
-    weight: 0.5,
+    weight: 0,
     iconClass: "powerup--bomb",
   },
 
@@ -57,7 +57,7 @@ export const POWERUP_CONFIG = {
     description: "Increase paddle width for a short time",
     category: "timed",
     durationMs: 15000,
-    weight: 4,
+    weight: 9,
     iconClass: "powerup--expand",
   },
 
@@ -66,7 +66,7 @@ export const POWERUP_CONFIG = {
     description: "Ball sticks to paddle on contact for a time",
     category: "timed",
     durationMs: 12000,
-    weight: 3,
+    weight: 0,
     iconClass: "powerup--sticky",
   },
 
@@ -75,7 +75,7 @@ export const POWERUP_CONFIG = {
     description: "Balls can pass through multiple bricks for a time",
     category: "timed",
     durationMs: 10000,
-    weight: 2,
+    weight: 0,
     iconClass: "powerup--pierce",
   },
 
@@ -84,14 +84,14 @@ export const POWERUP_CONFIG = {
     description: "Reduce ball speed temporarily for easier control",
     category: "timed",
     durationMs: 10000,
-    weight: 2,
+    weight: 0,
     iconClass: "powerup--slow",
   },
 };
 
 // global spawning & behavior settings
 export const POWERUP_SPAWN_SETTINGS = {
-  baseDropChance: 0.1, // 10% base chance that a destroyed brick will drop a powerup
+  baseDropChance: 0.4, // 10% base chance that a destroyed brick will drop a powerup
   perBrickTypeModifiers: {
     [BRICK_TYPES.NORMAL]: 1, // normal bricks: 10% * 1 = 10%
     [BRICK_TYPES.HARD]: 1.5, // hard bricks: 10% * 1.5 = 15%
