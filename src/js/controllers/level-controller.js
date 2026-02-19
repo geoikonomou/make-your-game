@@ -150,16 +150,10 @@ export function handleResize(levelNumber, DOM) {
     // position scaling of moving entities
     const oldContainerW = gameState.container.width;
     const oldContainerH = gameState.container.height;
-    console.log(
-      "attachedTo:",
-      currentBall.attachedTo,
-      "mode:",
-      gameState.getMode(),
-    );
 
     // Recalculate brick layout for new container width
     const layout = BrickLayoutSystem.calculate(DOM.container.clientWidth, cols);
-    console.log("this is the container width", DOM.container.offsetWidth);
+    console.log("this is the container width", DOM.container.clientWidth);
 
     // Update all bricks with new layout
     currentBricks.forEach((brick) => {
