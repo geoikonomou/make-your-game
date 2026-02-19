@@ -3,23 +3,14 @@ import { startLoop } from "./loop.js";
 import { stopGameInputListeners } from "../systems/inputs.js";
 import { gameState, createGameState } from "./state.js";
 
-let inputInitialized = false;
-
-export function startGame(DOM = null) {
-  // initialize state from current level (DOM passed from caller)
-  createGameState(DOM);
-  gameState.setMode("RUNNING");
-
-  if (!inputInitialized) {
-    initInput();
-    inputInitialized = true;
-  }
-  startLoop();
-}
-
-let enterGameModeRegistered = false;
 let spaceHandler = null;
 
+export function startGame(DOM = null) {
+  createGameState(DOM);
+  gameState.setMode("RUNNING");
+  initInput();
+  startLoop();
+}
 
 export function enterGameMode(DOM = null) {
   spaceHandler = function(e) {
@@ -29,18 +20,16 @@ export function enterGameMode(DOM = null) {
       if (mode !== "RUNNING" && mode !== "PAUSED") {
         startGame(DOM);
       }
+      //control pause-resume
+      if (mode === "RUNNING" || mode === "PAUSED") {
+        gameState.setMode(mode === "RUNNING" ? "PAUSED" : "RUNNING");
+      }
     }
   }
-  if (enterGameModeRegistered) return;
-  enterGameModeRegistered = true;
-
-  console.log("this is from the game engine", gameState.getMode());
   window.addEventListener("keydown", spaceHandler);
 }
 
 export function stopListeners() {
   stopGameInputListeners();
   window.removeEventListener("keydown", spaceHandler);
-  enterGameModeRegistered = false;
-  inputInitialized = false;
 }
