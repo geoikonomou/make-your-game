@@ -101,6 +101,15 @@ export function startLevel(levelNumber, DOM) {
   gameState._readyAt = null;
   gameState.setEntities(currentBall ? [currentBall] : [], currentPaddle, currentBricks);
 
+  // Update HUD immediately so stale values aren't visible before launch
+  if (DOM.scoreDisplay) DOM.scoreDisplay.textContent = "0";
+  if (DOM.timeDisplay) DOM.timeDisplay.textContent = "0:00";
+  if (DOM.livesDisplay) {
+    DOM.livesDisplay.innerHTML = Array(gameState.lives)
+      .fill('<span class="life">\u2665</span>')
+      .join("");
+  }
+
   // Reset mode so Space can start the game again
   gameState.setMode("READY");
   enterGameMode();
