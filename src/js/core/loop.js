@@ -18,7 +18,6 @@ export function startLoop() {
     // Cap dt to avoid huge jumps (e.g. after tab was inactive)
     const dt = Math.min(dtMs / 1000, 0.05);
     if (gameState.getMode() === "RUNNING") {
-      gameState.update(dtMs);
       gameplayUpdate(dt);
     }
     render();
