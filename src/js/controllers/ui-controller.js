@@ -85,16 +85,12 @@ function handlePauseButtonClick(e) {
 }
 
 /**
- * Keyboard handler for Escape (toggle pause) and R (restart).
+ * Keyboard handler for Escape (toggle pause).
  * @param {KeyboardEvent} e
  */
 function handlePauseKeydown(e) {
   if (e.key === "Escape") {
     isPaused() ? hidePauseOverlay() : showPauseOverlay();
-  }
-  if (e.key.toLowerCase() === "r") {
-    if (isPaused()) hidePauseOverlay();
-    _restartFn?.();
   }
 }
 
