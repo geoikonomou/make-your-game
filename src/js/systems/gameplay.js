@@ -51,7 +51,13 @@ function sweptPointAABB(p0, p1, rect) {
   // normal: determine which slab produced entry
   let nx = 0;
   let ny = 0;
-  if (txMin > tyMin) {
+  // handle near-simultaneous entry (corner hit) by returning both normals
+  const TIE_EPS = 1e-6;
+  if (Math.abs(txMin - tyMin) <= TIE_EPS) {
+    // corner: set both normals according to which side was entered
+    nx = tx1 < tx2 ? -1 : 1;
+    ny = ty1 < ty2 ? -1 : 1;
+  } else if (txMin > tyMin) {
     // X slab
     nx = tx1 < tx2 ? -1 : 1;
   } else {
