@@ -35,6 +35,8 @@
         <button class="level-btn" data-level="2">Level 2</button>
         <button class="level-btn" data-level="3">Level 3</button>
         <button class="level-btn" data-level="4">Level 4</button>
+        <button class="level-btn" data-level="5">Level 5 (Test for Next Level button)</button>
+        <button class="level-btn" data-level="6">Level 6 (Test for no Next Level button)</button>
       </div>
       <button class="back-btn">
         Back to Menu
@@ -105,9 +107,52 @@
         <!-- Bricks will be rendered here -->
         <div class="bricks-container" id="bricksContainer"></div>
 
-        <!-- <!-- Paddle and Ball will go here later --> -->
-        <!-- <div class="paddle" id="paddle"></div> -->
-        <!-- <div class="ball" id="ball"></div> -->
+        <!-- Pause Screen -->
+        <div class="screen hidden" id="pauseScreen">
+          <div class="pause-menu">
+            <h2 class="pause-title">PAUSED</h2>
+            <div class="pause-buttons">
+              <button class="menu-btn" id="continueBtn">Continue</button>
+              <button class="menu-btn" id="restartBtn">Restart</button>
+              <button class="menu-btn" id="backToMenuBtn">Back to Menu</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Win Screen -->
+        <div class="screen hidden" id="winScreen">
+          <div class="win-menu">
+            <h2 class="win-title">LEVEL COMPLETE!</h2>
+            <p class="win-score">Score: <span id="winFinalScore">0</span></p>
+            <p class="win-time">Time: <span id="winFinalTime">0:00</span></p>
+            <div class="win-submit">
+              <input type="text" id="winUsernameInput" class="username-input" placeholder="Enter your name" maxlength="20" autocomplete="off" />
+              <button class="menu-btn" id="winSubmitScoreBtn">Submit Score</button>
+            </div>
+            <div class="win-buttons">
+              <button class="menu-btn" id="nextLevelBtn">Next Level</button>
+              <button class="menu-btn" id="winRestartBtn">Restart</button>
+              <button class="menu-btn" id="winBackToMenuBtn">Back to Menu</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div class="screen hidden" id="gameOverScreen">
+          <div class="game-over-menu">
+            <h2 class="game-over-title">GAME OVER</h2>
+            <p class="game-over-score">Score: <span id="finalScore">0</span></p>
+            <p class="game-over-time">Time: <span id="finalTime">0:00</span></p>
+            <div class="game-over-submit">
+              <input type="text" id="usernameInput" class="username-input" placeholder="Enter your name" maxlength="20" autocomplete="off" />
+              <button class="menu-btn" id="submitScoreBtn">Submit Score</button>
+            </div>
+            <div class="game-over-buttons">
+              <button class="menu-btn" id="goRestartBtn">Restart</button>
+              <button class="menu-btn" id="goBackToMenuBtn">Back to Menu</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Lives Display -->

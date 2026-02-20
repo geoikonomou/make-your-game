@@ -110,6 +110,8 @@ export class GameState {
   resetForLevel(levelNumber = 1) {
     this.level = levelNumber;
     this.score = 0;
+    this.lives = 3;
+    this.elapsedMs = 0;
     this.timeStarted = performance.now();
 
     const bricks = getCurrentBricks() || [];

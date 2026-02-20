@@ -13,11 +13,18 @@ document.addEventListener("DOMContentLoaded", () => {
     container: document.getElementById("gameContainer"),
     bricksContainer: document.getElementById("bricksContainer"),
     levelDisplay: document.getElementById("levelDisplay"),
+    scoreDisplay: document.getElementById("scoreDisplay"),
+    highScoreDisplay: document.getElementById("highScoreDisplay"),
+    timeDisplay: document.getElementById("timeDisplay"),
+    livesDisplay: document.getElementById("livesDisplay"),
     screens: {
       menu: document.getElementById("mainMenu"),
       levels: document.getElementById("levelScreen"),
       options: document.getElementById("optionsScreen"),
       game: document.getElementById("gameScreen"),
+      pause: document.getElementById("pauseScreen"),
+      gameOver: document.getElementById("gameOverScreen"),
+      win: document.getElementById("winScreen"),
     },
     buttons: {
       play: document.getElementById("playBtn"),
