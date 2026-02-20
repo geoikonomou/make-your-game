@@ -4,10 +4,10 @@ import powerupSystem from "./powerup-system.js";
 
 // AABB collision (circle vs rect)
 function rectCircleCollision(rect, ball) {
-  const closestX = Math.max(
-    rect.x,
-    Math.min(ball.x + ball.radius, rect.x + rect.width),
-  );
+  const rectStart = rect.x;
+  const rectEnd = rect.x + rect.width;
+  const ballCenter = ball.x + ball.radius;
+  const closestX = Math.max(rectStart, Math.min(ballCenter, rectEnd));
   const closestY = Math.max(
     rect.y,
     Math.min(ball.y + ball.radius, rect.y + rect.height),
@@ -17,6 +17,80 @@ function rectCircleCollision(rect, ball) {
   const dy = ball.y + ball.radius - closestY;
 
   return dx * dx + dy * dy < ball.radius * ball.radius;
+}
+
+// Ray vs AABB helper used by swept tests. p0/p1 are points {x,y} for the
+// ball center. rect is axis-aligned box {x,y,width,height}.
+function sweptPointAABB(p0, p1, rect) {
+  const dirX = p1.x - p0.x;
+  const dirY = p1.y - p0.y;
+
+  const invDirX = dirX === 0 ? Infinity : 1 / dirX;
+  const invDirY = dirY === 0 ? Infinity : 1 / dirY;
+
+  const left = rect.x;
+  const right = rect.x + rect.width;
+  const top = rect.y;
+  const bottom = rect.y + rect.height;
+
+  let tx1 = (left - p0.x) * invDirX;
+  let tx2 = (right - p0.x) * invDirX;
+  let ty1 = (top - p0.y) * invDirY;
+  let ty2 = (bottom - p0.y) * invDirY;
+
+  const txMin = Math.min(tx1, tx2);
+  const txMax = Math.max(tx1, tx2);
+  const tyMin = Math.min(ty1, ty2);
+  const tyMax = Math.max(ty1, ty2);
+
+  const tEnter = Math.max(txMin, tyMin);
+  const tExit = Math.min(txMax, tyMax);
+
+  if (tEnter > tExit || tExit < 0 || tEnter > 1) return null;
+
+  // normal: determine which slab produced entry
+  let nx = 0;
+  let ny = 0;
+  if (txMin > tyMin) {
+    // X slab
+    nx = tx1 < tx2 ? -1 : 1;
+  } else {
+    // Y slab
+    ny = ty1 < ty2 ? -1 : 1;
+  }
+
+  return { tEnter: Math.max(0, tEnter), tExit, nx, ny };
+}
+
+// Swept circle vs rect: expand rect by radius and perform swept-point test
+// on the circle center moving from p0Center -> p1Center.
+function sweptCircleRect(p0Center, p1Center, radius, rect) {
+  const expanded = {
+    x: rect.x - radius,
+    y: rect.y - radius,
+    width: rect.width + radius * 2,
+    height: rect.height + radius * 2,
+  };
+
+  // If starting inside, report t=0 with a separation normal
+  if (
+    p0Center.x >= expanded.x &&
+    p0Center.x <= expanded.x + expanded.width &&
+    p0Center.y >= expanded.y &&
+    p0Center.y <= expanded.y + expanded.height
+  ) {
+    const centerX = expanded.x + expanded.width / 2;
+    const centerY = expanded.y + expanded.height / 2;
+    const dx = p0Center.x - centerX;
+    const dy = p0Center.y - centerY;
+    if (Math.abs(dx) > Math.abs(dy))
+      return { t: 0, nx: Math.sign(dx) || 1, ny: 0 };
+    return { t: 0, nx: 0, ny: Math.sign(dy) || 1 };
+  }
+
+  const hit = sweptPointAABB(p0Center, p1Center, expanded);
+  if (!hit) return null;
+  return { t: hit.tEnter, nx: hit.nx, ny: hit.ny };
 }
 
 function rectFromBounds(b) {
@@ -55,16 +129,6 @@ function collisionInfo(rect, ball) {
   };
 }
 
-function reflectAxis(ball, axis) {
-  if (axis === "x") {
-    if (typeof ball.bounceX === "function") ball.bounceX();
-    else ball.speedX = -ball.speedX;
-  } else {
-    if (typeof ball.bounceY === "function") ball.bounceY();
-    else ball.speedY = -ball.speedY;
-  }
-}
-
 export function update(dt) {
   if (gameState.getMode() !== "RUNNING") return;
 
@@ -84,164 +148,212 @@ export function update(dt) {
   if (gameState.paddle) gameState.paddle.hitBorders(w);
 
   // Iterate balls array (make a copy because we may modify it during loop)
-  const balls = gameState.getBalls().slice();
+  const balls = gameState.getBalls();
   for (const ball of balls) {
-    ball.move(dt);
-
-    const hit = ball.checkWallCollision(w, h);
-    if (hit === "BOTTOM") {
-      // remove ball and handle life loss if no balls remain
-      gameState.removeBall(ball);
-      if (gameState.getBalls().length === 0) {
-        gameState.loseLife();
-        console.log("Ball lost! Lives remaining:", gameState.lives);
-        // TODO: respawn ball or reset level
-      }
+    // If ball is attached to paddle, let it be positioned by move() and
+    // skip swept collision for this frame.
+    if (ball.attachedTo) {
+      ball.move(dt);
+      // attached balls shouldn't hit walls or bricks while attached
       continue;
-    }
+    } else {
+      const radius = ball.radius;
+      const maxIters = 3;
+      let iter = 0;
+      // remaining time in seconds
+      let remaining = dt;
 
-    // paddle collision
-    if (gameState.paddle) {
-      const pBounds = gameState.paddle.getBounds();
-      const paddleRect = rectFromBounds(pBounds);
-      if (rectCircleCollision(paddleRect, ball)) {
-        if (gameState.paddle.sticky) {
-          gameState.paddle.attachBall(ball, { force: true });
-        } else {
-          const info = collisionInfo(paddleRect, ball);
-          if (info.axis === "x") {
-            // side hit: map vertical contact position to Y velocity so side
-            // hits can steer the ball up/down. Preserve overall speed
-            // magnitude roughly and nudge the ball outside the paddle.
-            const maxYRatio = 0.8; // max fraction of speed to assign to Y
-            const speed = ball.getSpeed();
+      // start center
+      let curCenter = { x: ball.x + radius, y: ball.y + radius };
 
-            // normalized vertical hit position: -1 (top) -> +1 (bottom)
-            let hitPosY =
-              (info.ballCenterY - info.centerY) / (paddleRect.height / 2);
-            hitPosY = Math.max(-1, Math.min(1, hitPosY));
+      while (remaining > 0 && iter < maxIters) {
+        iter++;
 
-            // reduce downward component if paddle is close to bottom edge
-            const paddleBottom = paddleRect.y + paddleRect.height;
-            const bottomBuffer = 30; // px
-            const maxYRatioEffective =
-              hitPosY > 0 && paddleBottom > h - bottomBuffer
-                ? Math.min(0.5, maxYRatio)
-                : maxYRatio;
+        const nextCenter = {
+          x: curCenter.x + ball.speedX * remaining,
+          y: curCenter.y + ball.speedY * remaining,
+        };
 
-            const newSpeedY = hitPosY * speed * maxYRatioEffective;
+        // find earliest collision among paddle + bricks
+        let earliest = { t: 1.1, type: null, brickIndex: -1, nx: 0, ny: 0 };
 
-            // compute horizontal magnitude preserving total speed
-            const horizMag = Math.sqrt(
-              Math.max(1, speed * speed - newSpeedY * newSpeedY),
-            );
-            const horizSign = info.dx > 0 ? 1 : -1; // away from paddle center
-
-            ball.speedX = horizSign * horizMag;
-            ball.speedY = newSpeedY;
-
-            // // nudge ball outside paddle horizontally so it won't re-collide this frame
-            // ball.x =
-            //   horizSign > 0
-            //     ? paddleRect.x + paddleRect.width
-            //     : paddleRect.x - ball.radius * 2;
-          } else {
-            // top hit: clamp above and compute new velocity based on hit position
-            // ball.y = paddleRect.y - ball.radius * 2;
-            let hitPos =
-              (ball.x + ball.radius - (paddleRect.x + paddleRect.width / 2)) /
-              (paddleRect.width / 2);
-            hitPos = Math.max(-1, Math.min(1, hitPos));
-            const speed = ball.getSpeed();
-            const maxXRatio = 0.8;
-            ball.speedX = hitPos * speed * maxXRatio;
-            ball.speedY = -Math.sqrt(
-              Math.max(1, speed * speed - ball.speedX * ball.speedX),
-            );
+        // paddle
+        if (gameState.paddle) {
+          const pBounds = gameState.paddle.getBounds();
+          const paddleRect = rectFromBounds(pBounds);
+          const pHit = sweptCircleRect(
+            curCenter,
+            nextCenter,
+            radius,
+            paddleRect,
+          );
+          if (pHit && pHit.t < earliest.t) {
+            earliest = { t: pHit.t, type: "paddle", nx: pHit.nx, ny: pHit.ny };
           }
         }
-      }
-    }
 
-    // TODO: brick collisions
-    // Brick collisions — iterate bricks and test collision against each active brick
-    const bricks = gameState.getBricks();
-    // iterate backwards so removals are safe
-    for (let i = bricks.length - 1; i >= 0; i--) {
-      const brick = bricks[i];
-      if (!brick || !brick.isActive || !brick.isActive()) continue;
-
-      const b = brick.getBounds();
-      const rect = {
-        x: b.left,
-        y: b.top,
-        width: b.right - b.left,
-        height: b.bottom - b.top,
-      };
-
-      if (!rectCircleCollision(rect, ball)) continue;
-
-      const destroyed = brick.hit();
-
-      // let ball handle pierce behaviour (returns { pierced: true } or similar)
-      let pierced = false;
-      if (ball.onBrickHit) {
-        try {
-          const res = ball.onBrickHit(brick) || {};
-          pierced = !!res.pierced;
-        } catch (e) {
-          // ignore
+        // bricks
+        const bricks = gameState.getBricks();
+        for (let i = bricks.length - 1; i >= 0; i--) {
+          const brick = bricks[i];
+          if (!brick || !brick.isActive || !brick.isActive()) continue;
+          const b = brick.getBounds();
+          const rect = {
+            x: b.left,
+            y: b.top,
+            width: b.right - b.left,
+            height: b.bottom - b.top,
+          };
+          const hit = sweptCircleRect(curCenter, nextCenter, radius, rect);
+          if (hit && hit.t < earliest.t) {
+            earliest = {
+              t: hit.t,
+              type: "brick",
+              brickIndex: i,
+              nx: hit.nx,
+              ny: hit.ny,
+            };
+          }
         }
+
+        if (earliest.type === null) {
+          // no collision this sub-step: move to nextCenter and finish
+          ball.x = nextCenter.x - radius;
+          ball.y = nextCenter.y - radius;
+          curCenter = { ...nextCenter };
+          remaining = 0;
+          break;
+        }
+
+        // collision at fraction t of this remaining segment
+        const t = Math.max(0, Math.min(1, earliest.t));
+        const contact = {
+          x: curCenter.x + (nextCenter.x - curCenter.x) * t,
+          y: curCenter.y + (nextCenter.y - curCenter.y) * t,
+        };
+
+        // move ball to contact point (center -> translate back to top-left)
+        const EPS = 0.001;
+        ball.x = contact.x - radius + earliest.nx * EPS;
+        ball.y = contact.y - radius + earliest.ny * EPS;
+        // update current center
+        curCenter = { x: ball.x + radius, y: ball.y + radius };
+
+        // handle collision
+        if (earliest.type === "paddle") {
+          const pBounds = gameState.paddle.getBounds();
+          const paddleRect = rectFromBounds(pBounds);
+          if (gameState.paddle.sticky) {
+            gameState.paddle.attachBall(ball, { force: true });
+            // attach consumes the ball; stop processing further movement
+            remaining = 0;
+            break;
+          } else {
+            // reuse existing collision handling but compute based on contact
+            const info = collisionInfo(paddleRect, ball);
+            if (info.axis === "x") {
+              const maxYRatio = 0.8;
+              const speed = ball.getSpeed();
+              let hitPosY =
+                (info.ballCenterY - info.centerY) / (paddleRect.height / 2);
+              hitPosY = Math.max(-1, Math.min(1, hitPosY));
+              const paddleBottom = paddleRect.y + paddleRect.height;
+              const bottomBuffer = 30;
+              const maxYRatioEffective =
+                hitPosY > 0 && paddleBottom > h - bottomBuffer
+                  ? Math.min(0.5, maxYRatio)
+                  : maxYRatio;
+              const newSpeedY = hitPosY * speed * maxYRatioEffective;
+              const horizMag = Math.sqrt(
+                Math.max(1, speed * speed - newSpeedY * newSpeedY),
+              );
+              const horizSign = info.dx > 0 ? 1 : -1;
+              ball.speedX = horizSign * horizMag;
+              ball.speedY = newSpeedY;
+            } else {
+              let hitPos =
+                (ball.x + ball.radius - (paddleRect.x + paddleRect.width / 2)) /
+                (paddleRect.width / 2);
+              hitPos = Math.max(-1, Math.min(1, hitPos));
+              const speed = ball.getSpeed();
+              const maxXRatio = 0.8;
+              ball.speedX = hitPos * speed * maxXRatio;
+              ball.speedY = -Math.sqrt(
+                Math.max(1, speed * speed - ball.speedX * ball.speedX),
+              );
+            }
+
+            // after reflecting/steering, continue with remaining time using new velocity
+          }
+        } else if (earliest.type === "brick") {
+          // call hit on the brick (brickIndex refers to the bricks snapshot earlier)
+          const bricksArr = gameState.getBricks();
+          // the index i we stored corresponds to the bricks array at the time we scanned
+          const idx = earliest.brickIndex;
+          const brick = bricksArr[idx];
+          if (brick) {
+            const destroyed = brick.hit();
+            // let ball handle pierce behaviour
+            let pierced = false;
+            if (ball.onBrickHit) {
+              try {
+                const res = ball.onBrickHit(brick) || {};
+                pierced = !!res.pierced;
+              } catch (e) {
+                // ignore
+              }
+            }
+
+            gameState.addScore(brick.getScore());
+
+            if (destroyed) {
+              // remove the brick from current array
+              bricksArr.splice(idx, 1);
+              try {
+                powerupSystem.trySpawnFromBrick(brick, { allowSpawn: true });
+              } catch (e) {
+                // eslint-disable-next-line no-console
+                console.error("powerup spawn error", e);
+              }
+            }
+
+            if (!pierced) {
+              // reflect velocity based on normal
+              if (earliest.nx !== 0) {
+                if (typeof ball.bounceX === "function") ball.bounceX();
+                else ball.speedX = -ball.speedX;
+              }
+              if (earliest.ny !== 0) {
+                if (typeof ball.bounceY === "function") ball.bounceY();
+                else ball.speedY = -ball.speedY;
+              }
+            }
+            // if pierced, ball keeps its velocity and continues
+          }
+        }
+
+        // update remaining time: fraction consumed is t, so remaining scales
+        let consumed = t * remaining;
+        // avoid zero-time consumption loops when t==0 by forcing a tiny step
+        if (consumed <= 0) consumed = Math.min(remaining, 0.0001);
+        remaining = Math.max(0, remaining - consumed);
+
+        // prepare next sub-step: curCenter already set to contact center
+        // nextCenter for the next loop will be computed from new speeds and remaining
       }
-
-      // award score
-      gameState.addScore(brick.getScore());
-
-      // if destroyed, remove from game state and call destroy() already called inside brick.hit()
-      if (destroyed) {
-        bricks.splice(i, 1);
-
-        // attempt to spawn a powerup for this destroyed brick
-        // uses POWERUP_SPAWN_SETTINGS for chance and weighted pick
-        try {
-          console.log("hello");
-          powerupSystem.trySpawnFromBrick(brick, { allowSpawn: true });
-        } catch (e) {
-          // do not let spawn errors break gameplay loop
+      // end swept loop
+      // after movement this frame, check wall collisions as before
+      const hit = ball.checkWallCollision(w, h);
+      if (hit === "BOTTOM") {
+        gameState.removeBall(ball);
+        if (gameState.getBalls().length === 0) {
+          gameState.loseLife();
           // eslint-disable-next-line no-console
-          console.error("powerup spawn error", e);
+          console.log("Ball lost! Lives remaining:", gameState.lives);
         }
+        // move to next ball
+        continue;
       }
-
-      // if the ball didn't pierce, reflect based on collision axis and stop checking more bricks
-      if (!pierced) {
-        // determine bounce axis by comparing penetration on X and Y
-        const ballCenterX = ball.x + ball.radius;
-        const ballCenterY = ball.y + ball.radius;
-        const brickCenterX = b.left + (b.right - b.left) / 2;
-        const brickCenterY = b.top + (b.bottom - b.top) / 2;
-
-        const dx = ballCenterX - brickCenterX;
-        const dy = ballCenterY - brickCenterY;
-
-        const overlapX = Math.abs(dx) - ((b.right - b.left) / 2 + ball.radius);
-        const overlapY = Math.abs(dy) - ((b.bottom - b.top) / 2 + ball.radius);
-
-        // whichever overlap is smaller (more negative) is the axis of collision
-        if (Math.abs(overlapX) < Math.abs(overlapY)) {
-          // reflect X
-          if (typeof ball.bounceX === "function") ball.bounceX();
-          else ball.speedX = -ball.speedX;
-        } else {
-          // reflect Y
-          if (typeof ball.bounceY === "function") ball.bounceY();
-          else ball.speedY = -ball.speedY;
-        }
-
-        // stop after first non-pierce collision for this ball
-        break;
-      }
-      // if pierced, continue checking other bricks
     }
   }
 
