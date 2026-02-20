@@ -12,18 +12,8 @@ import { setRenderDOM } from "../systems/render.js";
 import { gameState } from "../core/state.js";
 
 /* ------------------------------------------------------------------ */
-/*  Pause Overlay                                                      */
+/*  Pause Screen                                                       */
 /* ------------------------------------------------------------------ */
-
-const PAUSE_OVERLAY_HTML = `
-  <div class="pause-menu">
-    <h2 class="pause-title">PAUSED</h2>
-    <div class="pause-buttons">
-      <button class="menu-btn" id="continueBtn">Continue</button>
-      <button class="menu-btn" id="restartBtn">Restart</button>
-      <button class="menu-btn" id="backToMenuBtn">Back to Menu</button>
-    </div>
-  </div>`;
 
 /** @type {Object|null} */
 let _DOM = null;
@@ -32,34 +22,21 @@ let _restartFn = null;
 /** @type {number|null} Timestamp when pause started, used to adjust the timer */
 let _pausedAt = null;
 
-/**
- * Creates a fresh pause-overlay element and appends it to the game container.
- * Called after the container is cleared (e.g. on level load) so the overlay
- * survives innerHTML wipes.
- *
- * @param {HTMLElement} container - The game container element.
- */
-export function createPauseOverlay(container) {
-  const el = document.createElement("div");
-  el.className = "pause-overlay hidden";
-  el.id = "pauseOverlay";
-  el.innerHTML = PAUSE_OVERLAY_HTML;
-  container.appendChild(el);
-  if (_DOM) _DOM.pauseOverlay = el;
-}
-
-/** Shows the pause overlay and pauses the game. */
-function showPauseOverlay() {
-  if (_DOM?.pauseOverlay) _DOM.pauseOverlay.classList.remove("hidden");
+/** Shows the pause screen and pauses the game. */
+function showPauseScreen() {
+  if (!_DOM) return;
+  // Show pause screen alongside the game screen (don't hide game)
+  if (_DOM.screens.pause) _DOM.screens.pause.classList.remove("hidden");
   if (gameState.getMode() === "RUNNING") {
     _pausedAt = performance.now();
     gameState.setMode("PAUSED");
   }
 }
 
-/** Hides the pause overlay and resumes the game. */
-function hidePauseOverlay() {
-  if (_DOM?.pauseOverlay) _DOM.pauseOverlay.classList.add("hidden");
+/** Hides the pause screen and resumes the game. */
+function hidePauseScreen() {
+  if (!_DOM) return;
+  if (_DOM.screens.pause) _DOM.screens.pause.classList.add("hidden");
   if (gameState.getMode() === "PAUSED") {
     // Shift timeStarted forward by the paused duration so the timer stays accurate
     if (_pausedAt && gameState.timeStarted) {
@@ -70,11 +47,6 @@ function hidePauseOverlay() {
   }
 }
 
-/** Returns whether the game is currently paused. */
-function isPaused() {
-  return gameState.getMode() === "PAUSED";
-}
-
 /**
  * Delegated click handler for the three pause-menu buttons.
  * @param {MouseEvent} e
@@ -82,14 +54,14 @@ function isPaused() {
 function handlePauseButtonClick(e) {
   switch (e.target.id) {
     case "continueBtn":
-      hidePauseOverlay();
+      hidePauseScreen();
       break;
     case "restartBtn":
-      hidePauseOverlay();
+      hidePauseScreen();
       _restartFn?.();
       break;
     case "backToMenuBtn":
-      hidePauseOverlay();
+      hidePauseScreen();
       showScreen("menu", _DOM);
       stopListeners();
       break;
@@ -104,16 +76,16 @@ function handlePauseKeydown(e) {
   if (e.key === "Escape") {
     const mode = gameState.getMode();
     if (mode === "PAUSED") {
-      hidePauseOverlay();
+      hidePauseScreen();
     } else if (mode === "RUNNING") {
-      showPauseOverlay();
+      showPauseScreen();
     }
   }
 }
 
 /**
- * Initializes pause-menu behaviour: event delegation for buttons and
- * Esc / R keyboard shortcuts. Call once during app startup.
+ * Initializes pause-screen behaviour: event delegation for buttons and
+ * Esc keyboard shortcut. Call once during app startup.
  *
  * @param {Object}   DOM       - Centralized DOM reference object.
  * @param {Function} restartFn - A function that restarts the current level.

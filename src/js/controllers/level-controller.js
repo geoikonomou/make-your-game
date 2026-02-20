@@ -3,7 +3,6 @@ import { enterGameMode } from "../core/game-engine.js";
 import { LevelSystem } from "../systems/level-system.js";
 import { gameState } from "../core/state.js";
 import { DEFAULT_BALL_FROM_PADDLE } from "../config/ball-config.js";
-import { createPauseOverlay } from "./ui-controller.js";
 
 let currentBricks = [];
 let currentLevel = 1;
@@ -31,8 +30,11 @@ export function startLevel(levelNumber, DOM) {
   // Empty the entire game container and re-attach the bricks container element
   DOM.container.innerHTML = "";
 
-  // Re-create the pause overlay (innerHTML wipe removes it)
-  createPauseOverlay(DOM.container);
+  // Re-attach the pause screen (innerHTML wipe removes it)
+  if (DOM.screens?.pause) {
+    DOM.screens.pause.classList.add("hidden");
+    DOM.container.appendChild(DOM.screens.pause);
+  }
 
   // Reuse the existing bricksContainer reference if provided by main.js; otherwise create it
   if (!DOM.bricksContainer)
@@ -90,6 +92,14 @@ export function startLevel(levelNumber, DOM) {
 
   DOM.levelDisplay.textContent = levelNumber;
   console.log(`Level ${levelNumber} loaded: ${currentBricks.length} bricks`);
+
+  // Reset game state for a fresh start
+  gameState.score = 0;
+  gameState.lives = 3;
+  gameState.elapsedMs = 0;
+  gameState.timeStarted = null;
+  gameState._readyAt = null;
+  gameState.setEntities(currentBall ? [currentBall] : [], currentPaddle, currentBricks);
 
   // Reset mode so Space can start the game again
   gameState.setMode("READY");

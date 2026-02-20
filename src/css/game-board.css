@@ -238,8 +238,8 @@
   }
 }
 
-/* Pause Overlay */
-.pause-overlay {
+/* Pause Screen */
+#pauseScreen {
   position: absolute;
   top: 0;
   left: 0;
@@ -251,7 +251,7 @@
   align-items: center;
   z-index: 100;
   backdrop-filter: blur(4px);
-  animation: fade-in 0.2s ease-in;
+  animation: pause-fade-in 0.2s ease-in;
 }
 
 .pause-menu {
@@ -278,7 +278,7 @@
   font-size: 1.1rem;
 }
 
-@keyframes fade-in {
+@keyframes pause-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }

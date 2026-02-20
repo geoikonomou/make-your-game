@@ -22,8 +22,8 @@ document.addEventListener("DOMContentLoaded", () => {
       levels: document.getElementById("levelScreen"),
       options: document.getElementById("optionsScreen"),
       game: document.getElementById("gameScreen"),
+      pause: document.getElementById("pauseScreen"),
     },
-    pauseOverlay: document.getElementById("pauseOverlay"),
     buttons: {
       play: document.getElementById("playBtn"),
       selectLevel: document.getElementById("selectLevelBtn"),
