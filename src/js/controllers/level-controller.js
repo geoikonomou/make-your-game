@@ -3,6 +3,7 @@ import { enterGameMode } from "../core/game-engine.js";
 import { LevelSystem } from "../systems/level-system.js";
 import { gameState } from "../core/state.js";
 import { DEFAULT_BALL_FROM_PADDLE } from "../config/ball-config.js";
+import { createPauseOverlay } from "./ui-controller.js";
 
 let currentBricks = [];
 let currentLevel = 1;
@@ -29,6 +30,9 @@ export function startLevel(levelNumber, DOM) {
 
   // Empty the entire game container and re-attach the bricks container element
   DOM.container.innerHTML = "";
+
+  // Re-create the pause overlay (innerHTML wipe removes it)
+  createPauseOverlay(DOM.container);
 
   // Reuse the existing bricksContainer reference if provided by main.js; otherwise create it
   if (!DOM.bricksContainer)

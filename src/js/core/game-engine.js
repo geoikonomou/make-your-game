@@ -15,13 +15,9 @@ export function enterGameMode() {
   spaceHandler = function(e) {
     if (e.code === "Space") {
       const mode = gameState.getMode();
-      // Only start the game if it hasn't been started yet
+      // Space only launches the ball (starts the game from READY state)
       if (mode !== "RUNNING" && mode !== "PAUSED") {
         startGame();
-      }
-      //control pause-resume
-      if (mode === "RUNNING" || mode === "PAUSED") {
-        gameState.setMode(mode === "RUNNING" ? "PAUSED" : "RUNNING");
       }
     }
   }

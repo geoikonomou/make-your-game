@@ -105,9 +105,17 @@
         <!-- Bricks will be rendered here -->
         <div class="bricks-container" id="bricksContainer"></div>
 
-        <!-- <!-- Paddle and Ball will go here later --> -->
-        <!-- <div class="paddle" id="paddle"></div> -->
-        <!-- <div class="ball" id="ball"></div> -->
+        <!-- Pause Overlay -->
+        <div class="pause-overlay hidden" id="pauseOverlay">
+          <div class="pause-menu">
+            <h2 class="pause-title">PAUSED</h2>
+            <div class="pause-buttons">
+              <button class="menu-btn" id="continueBtn">Continue</button>
+              <button class="menu-btn" id="restartBtn">Restart</button>
+              <button class="menu-btn" id="backToMenuBtn">Back to Menu</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Lives Display -->

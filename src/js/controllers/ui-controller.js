@@ -9,7 +9,112 @@ import { stopListeners } from "../core/game-engine.js";
 import { showScreen } from "./screen-controller.js";
 import { audioManager } from "../audio/audio-manager.js";
 import { setRenderDOM } from "../systems/render.js";
-// import { enterGameMode } from "../core/game-engine.js";
+import { gameState } from "../core/state.js";
+
+/* ------------------------------------------------------------------ */
+/*  Pause Overlay                                                      */
+/* ------------------------------------------------------------------ */
+
+const PAUSE_OVERLAY_HTML = `
+  <div class="pause-menu">
+    <h2 class="pause-title">PAUSED</h2>
+    <div class="pause-buttons">
+      <button class="menu-btn" id="continueBtn">Continue</button>
+      <button class="menu-btn" id="restartBtn">Restart</button>
+      <button class="menu-btn" id="backToMenuBtn">Back to Menu</button>
+    </div>
+  </div>`;
+
+/** @type {Object|null} */
+let _DOM = null;
+/** @type {Function|null} */
+let _restartFn = null;
+
+/**
+ * Creates a fresh pause-overlay element and appends it to the game container.
+ * Called after the container is cleared (e.g. on level load) so the overlay
+ * survives innerHTML wipes.
+ *
+ * @param {HTMLElement} container - The game container element.
+ */
+export function createPauseOverlay(container) {
+  const el = document.createElement("div");
+  el.className = "pause-overlay hidden";
+  el.id = "pauseOverlay";
+  el.innerHTML = PAUSE_OVERLAY_HTML;
+  container.appendChild(el);
+  if (_DOM) _DOM.pauseOverlay = el;
+}
+
+/** Shows the pause overlay and pauses the game. */
+function showPauseOverlay() {
+  if (_DOM?.pauseOverlay) _DOM.pauseOverlay.classList.remove("hidden");
+  if (gameState.getMode() === "RUNNING") gameState.setMode("PAUSED");
+}
+
+/** Hides the pause overlay and resumes the game. */
+function hidePauseOverlay() {
+  if (_DOM?.pauseOverlay) _DOM.pauseOverlay.classList.add("hidden");
+  if (gameState.getMode() === "PAUSED") gameState.setMode("RUNNING");
+}
+
+/** Returns whether the game is currently paused. */
+function isPaused() {
+  return gameState.getMode() === "PAUSED";
+}
+
+/**
+ * Delegated click handler for the three pause-menu buttons.
+ * @param {MouseEvent} e
+ */
+function handlePauseButtonClick(e) {
+  switch (e.target.id) {
+    case "continueBtn":
+      hidePauseOverlay();
+      break;
+    case "restartBtn":
+      hidePauseOverlay();
+      _restartFn?.();
+      break;
+    case "backToMenuBtn":
+      hidePauseOverlay();
+      showScreen("menu", _DOM);
+      stopListeners();
+      break;
+  }
+}
+
+/**
+ * Keyboard handler for Escape (toggle pause) and R (restart).
+ * @param {KeyboardEvent} e
+ */
+function handlePauseKeydown(e) {
+  if (e.key === "Escape") {
+    isPaused() ? hidePauseOverlay() : showPauseOverlay();
+  }
+  if (e.key.toLowerCase() === "r") {
+    if (isPaused()) hidePauseOverlay();
+    _restartFn?.();
+  }
+}
+
+/**
+ * Initializes pause-menu behaviour: event delegation for buttons and
+ * Esc / R keyboard shortcuts. Call once during app startup.
+ *
+ * @param {Object}   DOM       - Centralized DOM reference object.
+ * @param {Function} restartFn - A function that restarts the current level.
+ */
+function initPauseController(DOM, restartFn) {
+  _DOM = DOM;
+  _restartFn = restartFn;
+  document.addEventListener("click", handlePauseButtonClick);
+  document.addEventListener("keydown", handlePauseKeydown);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main UI Setup                                                      */
+/* ------------------------------------------------------------------ */
 
 /**
  * Initializes all UI event listeners and binds user interactions
@@ -98,17 +203,8 @@ export function setupUI(DOM) {
     DOM.buttons.volume.sfxValue,
   );
 
-  // --- Keyboard ---
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      stopListeners()
-      showScreen("menu", DOM);
-    }
-    if (e.key.toLowerCase() === "r") {
-      stopListeners()
-      startLevel(getCurrentLevel(), DOM);
-    }
-  });
+  // --- Pause controller (Esc overlay + R restart + button delegation) ---
+  initPauseController(DOM, () => startLevel(getCurrentLevel(), DOM));
 
   // --- Resize ---
   window.addEventListener("resize", () => handleResize(getCurrentLevel(), DOM));

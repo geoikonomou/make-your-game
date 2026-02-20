@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
       options: document.getElementById("optionsScreen"),
       game: document.getElementById("gameScreen"),
     },
+    pauseOverlay: document.getElementById("pauseOverlay"),
     buttons: {
       play: document.getElementById("playBtn"),
       selectLevel: document.getElementById("selectLevelBtn"),
