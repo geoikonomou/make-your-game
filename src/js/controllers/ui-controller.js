@@ -5,6 +5,7 @@ import {
   getCurrentBricks,
   handleResize,
 } from "./level-controller.js";
+import { stopListeners } from "../core/game-engine.js";
 import { showScreen } from "./screen-controller.js";
 import { audioManager } from "../audio/audio-manager.js";
 // import { enterGameMode } from "../core/game-engine.js";
@@ -49,7 +50,7 @@ export function setupUI(DOM) {
 
   // --- Level buttons ---
   DOM.buttons.levelButtons.forEach((btn) => {
-    btn.addEventListener("click", function () {
+    btn.addEventListener("click", function() {
       const level = parseInt(this.dataset.level);
       showScreen("game", DOM);
       startLevel(level, DOM);
@@ -58,8 +59,9 @@ export function setupUI(DOM) {
 
   //back to menu buttons
   DOM.buttons.backtoMenuButtons.forEach((btn) => {
-    btn.addEventListener("click", function () {
+    btn.addEventListener("click", function() {
       showScreen("menu", DOM);
+      stopListeners();
     });
   });
   // --- Volume sliders ---

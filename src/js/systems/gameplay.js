@@ -1,7 +1,7 @@
 import { getInput } from "./inputs.js";
 import { gameState } from "../core/state.js";
 
-// AABB collision
+// AABB collision (circle vs rect)
 function rectCircleCollision(rect, ball) {
   const closestX = Math.max(
     rect.x,
@@ -16,6 +16,52 @@ function rectCircleCollision(rect, ball) {
   const dy = ball.y + ball.radius - closestY;
 
   return dx * dx + dy * dy < ball.radius * ball.radius;
+}
+
+function rectFromBounds(b) {
+  return {
+    x: b.left,
+    y: b.top,
+    width: b.width ?? b.right - b.left,
+    height: b.height ?? b.bottom - b.top,
+  };
+}
+
+// compute collision metrics used to decide axis and penetration
+function collisionInfo(rect, ball) {
+  const ballCenterX = ball.x + ball.radius;
+  const ballCenterY = ball.y + ball.radius;
+  const centerX = rect.x + rect.width / 2;
+  const centerY = rect.y + rect.height / 2;
+
+  const dx = ballCenterX - centerX;
+  const dy = ballCenterY - centerY;
+
+  const overlapX = Math.abs(dx) - (rect.width / 2 + ball.radius);
+  const overlapY = Math.abs(dy) - (rect.height / 2 + ball.radius);
+
+  const axis = Math.abs(overlapX) < Math.abs(overlapY) ? "x" : "y";
+  return {
+    dx,
+    dy,
+    overlapX,
+    overlapY,
+    axis,
+    ballCenterX,
+    ballCenterY,
+    centerX,
+    centerY,
+  };
+}
+
+function reflectAxis(ball, axis) {
+  if (axis === "x") {
+    if (typeof ball.bounceX === "function") ball.bounceX();
+    else ball.speedX = -ball.speedX;
+  } else {
+    if (typeof ball.bounceY === "function") ball.bounceY();
+    else ball.speedY = -ball.speedY;
+  }
 }
 
 export function update(dt) {
@@ -54,27 +100,65 @@ export function update(dt) {
     }
 
     // paddle collision
-    if (gameState.paddle && rectCircleCollision(gameState.paddle, ball)) {
-      console.log("Paddle hit!");
-      // if paddle sticky, attach
-      if (gameState.paddle.sticky) {
-        gameState.paddle.attachBall(ball, { force: true });
-      } else {
-        // reflect based on hit position
-        ball.y = gameState.paddle.y - ball.radius * 2;
-        let hitPos =
-          (ball.x +
-            ball.radius -
-            (gameState.paddle.x + gameState.paddle.width / 2)) /
-          (gameState.paddle.width / 2);
-        hitPos = Math.max(-1, Math.min(1, hitPos));
+    if (gameState.paddle) {
+      const pBounds = gameState.paddle.getBounds();
+      const paddleRect = rectFromBounds(pBounds);
+      if (rectCircleCollision(paddleRect, ball)) {
+        if (gameState.paddle.sticky) {
+          gameState.paddle.attachBall(ball, { force: true });
+        } else {
+          const info = collisionInfo(paddleRect, ball);
+          if (info.axis === "x") {
+            // side hit: map vertical contact position to Y velocity so side
+            // hits can steer the ball up/down. Preserve overall speed
+            // magnitude roughly and nudge the ball outside the paddle.
+            const maxYRatio = 0.8; // max fraction of speed to assign to Y
+            const speed = ball.getSpeed();
 
-        const speed = ball.getSpeed();
-        const maxXRatio = 0.8;
-        ball.speedX = hitPos * speed * maxXRatio;
-        ball.speedY = -Math.sqrt(
-          Math.max(1, speed * speed - ball.speedX * ball.speedX),
-        );
+            // normalized vertical hit position: -1 (top) -> +1 (bottom)
+            let hitPosY =
+              (info.ballCenterY - info.centerY) / (paddleRect.height / 2);
+            hitPosY = Math.max(-1, Math.min(1, hitPosY));
+
+            // reduce downward component if paddle is close to bottom edge
+            const paddleBottom = paddleRect.y + paddleRect.height;
+            const bottomBuffer = 30; // px
+            const maxYRatioEffective =
+              hitPosY > 0 && paddleBottom > h - bottomBuffer
+                ? Math.min(0.5, maxYRatio)
+                : maxYRatio;
+
+            const newSpeedY = hitPosY * speed * maxYRatioEffective;
+
+            // compute horizontal magnitude preserving total speed
+            const horizMag = Math.sqrt(
+              Math.max(1, speed * speed - newSpeedY * newSpeedY),
+            );
+            const horizSign = info.dx > 0 ? 1 : -1; // away from paddle center
+
+            ball.speedX = horizSign * horizMag;
+            ball.speedY = newSpeedY;
+
+            // // nudge ball outside paddle horizontally so it won't re-collide this frame
+            // ball.x =
+            //   horizSign > 0
+            //     ? paddleRect.x + paddleRect.width
+            //     : paddleRect.x - ball.radius * 2;
+          } else {
+            // top hit: clamp above and compute new velocity based on hit position
+            // ball.y = paddleRect.y - ball.radius * 2;
+            let hitPos =
+              (ball.x + ball.radius - (paddleRect.x + paddleRect.width / 2)) /
+              (paddleRect.width / 2);
+            hitPos = Math.max(-1, Math.min(1, hitPos));
+            const speed = ball.getSpeed();
+            const maxXRatio = 0.8;
+            ball.speedX = hitPos * speed * maxXRatio;
+            ball.speedY = -Math.sqrt(
+              Math.max(1, speed * speed - ball.speedX * ball.speedX),
+            );
+          }
+        }
       }
     }
 

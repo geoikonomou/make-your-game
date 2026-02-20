@@ -1,29 +1,20 @@
-import { gameState } from "../core/state.js";
-
 const keys = {};
-let initialized = false;
+
+const arrowKeysDownHandler = function(e) {
+  keys[e.code] = true;
+};
+const arrowKeysUpHandler = function(e) {
+  keys[e.code] = false;
+};
 
 export function initInput() {
-  if (initialized) return;
-  initialized = true;
+  window.addEventListener("keydown", arrowKeysDownHandler);
+  window.addEventListener("keyup", arrowKeysUpHandler);
+}
 
-  window.addEventListener("keydown", (e) => {
-    if (e.code === "Space") {
-      const mode = gameState.getMode();
-      // Only toggle pause when game is already running or paused
-      if (mode === "RUNNING" || mode === "PAUSED") {
-        gameState.setMode(mode === "RUNNING" ? "PAUSED" : "RUNNING");
-      }
-    }
-  });
-
-  window.addEventListener("keydown", (e) => {
-    keys[e.code] = true;
-  });
-
-  window.addEventListener("keyup", (e) => {
-    keys[e.code] = false;
-  });
+export function stopGameInputListeners() {
+  window.removeEventListener("keydown", arrowKeysDownHandler);
+  window.removeEventListener("keyup", arrowKeysUpHandler);
 }
 
 export function getInput() {
