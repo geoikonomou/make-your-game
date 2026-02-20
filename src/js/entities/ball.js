@@ -132,6 +132,7 @@ export class Ball {
     const size = this.radius * 2;
     this.element.style.width = `${size}px`;
     this.element.style.height = `${size}px`;
+    this.updatePosition();
   }
 
   getSpeed() {
