@@ -12,12 +12,26 @@ export function startGame() {
 }
 
 export function enterGameMode() {
+  // Remove any previously attached space handler to avoid duplicate listeners
+  if (spaceHandler) {
+    window.removeEventListener("keydown", spaceHandler);
+  }
   spaceHandler = function(e) {
     if (e.code === "Space") {
       const mode = gameState.getMode();
-      // Space only launches the ball (starts the game from READY state)
-      if (mode !== "RUNNING" && mode !== "PAUSED") {
-        startGame();
+      if (mode === "READY") {
+        // First launch or respawn — start/resume the game
+        if (!gameState.timeStarted) {
+          // First launch: full init
+          startGame();
+        } else {
+          // Respawn: adjust timer to exclude wait time, then resume
+          if (gameState._readyAt && gameState.timeStarted) {
+            gameState.timeStarted += performance.now() - gameState._readyAt;
+            gameState._readyAt = null;
+          }
+          gameState.setMode("RUNNING");
+        }
       }
     }
   }

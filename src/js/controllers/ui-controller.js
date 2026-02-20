@@ -29,6 +29,8 @@ const PAUSE_OVERLAY_HTML = `
 let _DOM = null;
 /** @type {Function|null} */
 let _restartFn = null;
+/** @type {number|null} Timestamp when pause started, used to adjust the timer */
+let _pausedAt = null;
 
 /**
  * Creates a fresh pause-overlay element and appends it to the game container.
@@ -49,13 +51,23 @@ export function createPauseOverlay(container) {
 /** Shows the pause overlay and pauses the game. */
 function showPauseOverlay() {
   if (_DOM?.pauseOverlay) _DOM.pauseOverlay.classList.remove("hidden");
-  if (gameState.getMode() === "RUNNING") gameState.setMode("PAUSED");
+  if (gameState.getMode() === "RUNNING") {
+    _pausedAt = performance.now();
+    gameState.setMode("PAUSED");
+  }
 }
 
 /** Hides the pause overlay and resumes the game. */
 function hidePauseOverlay() {
   if (_DOM?.pauseOverlay) _DOM.pauseOverlay.classList.add("hidden");
-  if (gameState.getMode() === "PAUSED") gameState.setMode("RUNNING");
+  if (gameState.getMode() === "PAUSED") {
+    // Shift timeStarted forward by the paused duration so the timer stays accurate
+    if (_pausedAt && gameState.timeStarted) {
+      gameState.timeStarted += performance.now() - _pausedAt;
+    }
+    _pausedAt = null;
+    gameState.setMode("RUNNING");
+  }
 }
 
 /** Returns whether the game is currently paused. */
@@ -90,7 +102,12 @@ function handlePauseButtonClick(e) {
  */
 function handlePauseKeydown(e) {
   if (e.key === "Escape") {
-    isPaused() ? hidePauseOverlay() : showPauseOverlay();
+    const mode = gameState.getMode();
+    if (mode === "PAUSED") {
+      hidePauseOverlay();
+    } else if (mode === "RUNNING") {
+      showPauseOverlay();
+    }
   }
 }
 

@@ -20,8 +20,9 @@ function respawnBall() {
   }
 
   gameState.addBall(newBall);
-  // Pause so the player can prepare — Space to resume
-  gameState.setMode("PAUSED");
+  // Wait for the player to press Space before resuming
+  gameState._readyAt = performance.now();
+  gameState.setMode("READY");
 }
 
 // AABB collision (circle vs rect)

@@ -36,6 +36,11 @@ export function render() {
 
   // --- HUD updates ---
   if (hudDOM) {
+    // Update elapsed time (only while running)
+    if (gameState.getMode() === "RUNNING" && gameState.timeStarted) {
+      gameState.elapsedMs = performance.now() - gameState.timeStarted;
+    }
+
     // Score
     if (hudDOM.scoreDisplay) {
       hudDOM.scoreDisplay.textContent = gameState.score;
