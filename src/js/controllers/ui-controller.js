@@ -10,6 +10,7 @@ import { showScreen } from "./screen-controller.js";
 import { audioManager } from "../audio/audio-manager.js";
 import { setRenderDOM } from "../systems/render.js";
 import { gameState } from "../core/state.js";
+import { LEVELS } from "../config/level-config.js";
 
 /* ------------------------------------------------------------------ */
 /*  Pause Screen                                                       */
@@ -188,6 +189,91 @@ function initGameOverController() {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Win Screen                                                         */
+/* ------------------------------------------------------------------ */
+
+/** Shows the Win overlay with score and time. */
+export function showWinScreen() {
+  if (!_DOM?.screens?.win) return;
+  const scoreEl = document.getElementById("winFinalScore");
+  if (scoreEl) scoreEl.textContent = gameState.score;
+  const timeEl = document.getElementById("winFinalTime");
+  if (timeEl) {
+    const totalSec = Math.floor(gameState.elapsedMs / 1000);
+    const min = Math.floor(totalSec / 60);
+    const sec = totalSec % 60;
+    timeEl.textContent = `${min}:${sec.toString().padStart(2, "0")}`;
+  }
+  const usernameInput = document.getElementById("winUsernameInput");
+  if (usernameInput) {
+    usernameInput.value = "";
+    usernameInput.disabled = false;
+  }
+  const submitBtn = document.getElementById("winSubmitScoreBtn");
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Score";
+  }
+  // Hide "Next Level" if this is the last level
+  const nextBtn = document.getElementById("nextLevelBtn");
+  const maxLevel = Object.keys(LEVELS).length;
+  if (nextBtn) {
+    nextBtn.style.display = getCurrentLevel() >= maxLevel ? "none" : "";
+  }
+  _DOM.screens.win.classList.remove("hidden");
+}
+
+/** Hides the Win overlay. */
+function hideWinScreen() {
+  if (!_DOM?.screens?.win) return;
+  _DOM.screens.win.classList.add("hidden");
+}
+
+/**
+ * Delegated click handler for Win screen buttons.
+ * @param {MouseEvent} e
+ */
+function handleWinClick(e) {
+  switch (e.target.id) {
+    case "winSubmitScoreBtn": {
+      const input = document.getElementById("winUsernameInput");
+      const name = input?.value.trim();
+      if (!name) {
+        input?.focus();
+        return;
+      }
+      saveScore(name, gameState.score, gameState.elapsedMs);
+      e.target.disabled = true;
+      e.target.textContent = "Submitted!";
+      if (input) input.disabled = true;
+      break;
+    }
+    case "nextLevelBtn": {
+      hideWinScreen();
+      const next = getCurrentLevel() + 1;
+      startLevel(next, _DOM);
+      break;
+    }
+    case "winRestartBtn":
+      hideWinScreen();
+      _restartFn?.();
+      break;
+    case "winBackToMenuBtn":
+      hideWinScreen();
+      showScreen("menu", _DOM);
+      stopListeners();
+      break;
+  }
+}
+
+/**
+ * Initializes Win screen event delegation. Call once during app startup.
+ */
+function initWinController() {
+  document.addEventListener("click", handleWinClick);
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main UI Setup                                                      */
 /* ------------------------------------------------------------------ */
 
@@ -283,6 +369,9 @@ export function setupUI(DOM) {
 
   // --- Game Over controller (button delegation) ---
   initGameOverController();
+
+  // --- Win controller (button delegation) ---
+  initWinController();
 
   // --- Resize ---
   window.addEventListener("resize", () => handleResize(getCurrentLevel(), DOM));

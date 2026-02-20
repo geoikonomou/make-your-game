@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
       game: document.getElementById("gameScreen"),
       pause: document.getElementById("pauseScreen"),
       gameOver: document.getElementById("gameOverScreen"),
+      win: document.getElementById("winScreen"),
     },
     buttons: {
       play: document.getElementById("playBtn"),

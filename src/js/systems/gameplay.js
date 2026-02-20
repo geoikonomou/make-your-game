@@ -2,7 +2,7 @@ import { getInput } from "./inputs.js";
 import { gameState } from "../core/state.js";
 import { LevelSystem } from "./level-system.js";
 import { BRICK_TYPES } from "../config/brick-config.js";
-import { showGameOverScreen } from "../controllers/ui-controller.js";
+import { showGameOverScreen, showWinScreen } from "../controllers/ui-controller.js";
 
 /**
  * Respawn a new ball on the paddle after losing a life.
@@ -287,6 +287,7 @@ export function update(dt) {
       localStorage.setItem("highScore", gameState.score.toString());
     }
     gameState.setMode("PAUSED");
+    showWinScreen();
     console.log(`Level ${gameState.level} complete! Score: ${gameState.score}`);
   }
 }

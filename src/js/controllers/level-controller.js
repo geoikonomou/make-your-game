@@ -42,6 +42,12 @@ export function startLevel(levelNumber, DOM) {
     DOM.container.appendChild(DOM.screens.gameOver);
   }
 
+  // Re-attach the win screen (innerHTML wipe removes it)
+  if (DOM.screens?.win) {
+    DOM.screens.win.classList.add("hidden");
+    DOM.container.appendChild(DOM.screens.win);
+  }
+
   // Reuse the existing bricksContainer reference if provided by main.js; otherwise create it
   if (!DOM.bricksContainer)
     DOM.bricksContainer = document.getElementById("bricksContainer");
