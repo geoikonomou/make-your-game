@@ -90,8 +90,14 @@ export function setupUI(DOM) {
 
   // --- Keyboard ---
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") showScreen("menu", DOM);
-    if (e.key.toLowerCase() === "r") startLevel(getCurrentLevel(), DOM);
+    if (e.key === "Escape") {
+      stopListeners()
+      showScreen("menu", DOM);
+    }
+    if (e.key.toLowerCase() === "r") {
+      stopListeners()
+      startLevel(getCurrentLevel(), DOM);
+    }
   });
 
   // --- Resize ---
