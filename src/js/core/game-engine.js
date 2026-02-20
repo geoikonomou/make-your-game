@@ -13,6 +13,10 @@ export function startGame(DOM = null) {
 }
 
 export function enterGameMode(DOM = null) {
+  // Remove any previously attached space handler to avoid duplicate listeners
+  if (spaceHandler) {
+    window.removeEventListener("keydown", spaceHandler);
+  }
   spaceHandler = function(e) {
     if (e.code === "Space") {
       const mode = gameState.getMode();
