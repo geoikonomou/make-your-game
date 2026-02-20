@@ -116,6 +116,22 @@
             </div>
           </div>
         </div>
+
+        <!-- Game Over Screen -->
+        <div class="screen hidden" id="gameOverScreen">
+          <div class="game-over-menu">
+            <h2 class="game-over-title">GAME OVER</h2>
+            <p class="game-over-score">Score: <span id="finalScore">0</span></p>
+            <div class="game-over-submit">
+              <input type="text" id="usernameInput" class="username-input" placeholder="Enter your name" maxlength="20" autocomplete="off" />
+              <button class="menu-btn" id="submitScoreBtn">Submit Score</button>
+            </div>
+            <div class="game-over-buttons">
+              <button class="menu-btn" id="goRestartBtn">Restart</button>
+              <button class="menu-btn" id="goBackToMenuBtn">Back to Menu</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Lives Display -->

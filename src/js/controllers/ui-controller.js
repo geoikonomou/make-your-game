@@ -98,6 +98,87 @@ function initPauseController(DOM, restartFn) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Game Over Screen                                                   */
+/* ------------------------------------------------------------------ */
+
+/** Shows the Game Over overlay with the final score. */
+export function showGameOverScreen() {
+  if (!_DOM?.screens?.gameOver) return;
+  const finalScoreEl = document.getElementById("finalScore");
+  if (finalScoreEl) finalScoreEl.textContent = gameState.score;
+  const usernameInput = document.getElementById("usernameInput");
+  if (usernameInput) {
+    usernameInput.value = "";
+    usernameInput.disabled = false;
+  }
+  const submitBtn = document.getElementById("submitScoreBtn");
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Score";
+  }
+  _DOM.screens.gameOver.classList.remove("hidden");
+}
+
+/** Hides the Game Over overlay. */
+function hideGameOverScreen() {
+  if (!_DOM?.screens?.gameOver) return;
+  _DOM.screens.gameOver.classList.add("hidden");
+}
+
+/**
+ * Delegated click handler for Game Over buttons.
+ * @param {MouseEvent} e
+ */
+function handleGameOverClick(e) {
+  switch (e.target.id) {
+    case "submitScoreBtn": {
+      const input = document.getElementById("usernameInput");
+      const name = input?.value.trim();
+      if (!name) {
+        input?.focus();
+        return;
+      }
+      saveScore(name, gameState.score);
+      // Disable button/input after submission
+      e.target.disabled = true;
+      e.target.textContent = "Submitted!";
+      if (input) input.disabled = true;
+      break;
+    }
+    case "goRestartBtn":
+      hideGameOverScreen();
+      _restartFn?.();
+      break;
+    case "goBackToMenuBtn":
+      hideGameOverScreen();
+      showScreen("menu", _DOM);
+      stopListeners();
+      break;
+  }
+}
+
+/**
+ * Saves a player's score to localStorage.
+ * @param {string} name - Player name.
+ * @param {number} score - Final score.
+ */
+function saveScore(name, score) {
+  const scores = JSON.parse(localStorage.getItem("leaderboard") || "[]");
+  scores.push({ name, score, date: new Date().toISOString() });
+  scores.sort((a, b) => b.score - a.score);
+  // Keep top 10
+  localStorage.setItem("leaderboard", JSON.stringify(scores.slice(0, 10)));
+  console.log(`Score saved: ${name} — ${score}`);
+}
+
+/**
+ * Initializes Game Over screen event delegation. Call once during app startup.
+ */
+function initGameOverController() {
+  document.addEventListener("click", handleGameOverClick);
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main UI Setup                                                      */
 /* ------------------------------------------------------------------ */
 
@@ -190,6 +271,9 @@ export function setupUI(DOM) {
 
   // --- Pause controller (Esc overlay + R restart + button delegation) ---
   initPauseController(DOM, () => startLevel(getCurrentLevel(), DOM));
+
+  // --- Game Over controller (button delegation) ---
+  initGameOverController();
 
   // --- Resize ---
   window.addEventListener("resize", () => handleResize(getCurrentLevel(), DOM));
