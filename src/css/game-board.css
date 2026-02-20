@@ -311,14 +311,16 @@
   text-shadow: 0 0 20px rgba(255, 68, 68, 0.6), 0 0 40px rgba(255, 68, 68, 0.3);
 }
 
-.game-over-score {
+.game-over-score,
+.game-over-time {
   font-family: "Orbitron", sans-serif;
   font-size: 1.4rem;
   color: var(--color-white);
   margin-bottom: 1.5rem;
 }
 
-.game-over-score span {
+.game-over-score span,
+.game-over-time span {
   color: #ffd700;
   font-weight: 700;
 }

@@ -101,11 +101,18 @@ function initPauseController(DOM, restartFn) {
 /*  Game Over Screen                                                   */
 /* ------------------------------------------------------------------ */
 
-/** Shows the Game Over overlay with the final score. */
+/** Shows the Game Over overlay with the final score and time. */
 export function showGameOverScreen() {
   if (!_DOM?.screens?.gameOver) return;
   const finalScoreEl = document.getElementById("finalScore");
   if (finalScoreEl) finalScoreEl.textContent = gameState.score;
+  const finalTimeEl = document.getElementById("finalTime");
+  if (finalTimeEl) {
+    const totalSec = Math.floor(gameState.elapsedMs / 1000);
+    const min = Math.floor(totalSec / 60);
+    const sec = totalSec % 60;
+    finalTimeEl.textContent = `${min}:${sec.toString().padStart(2, "0")}`;
+  }
   const usernameInput = document.getElementById("usernameInput");
   if (usernameInput) {
     usernameInput.value = "";
@@ -138,7 +145,7 @@ function handleGameOverClick(e) {
         input?.focus();
         return;
       }
-      saveScore(name, gameState.score);
+      saveScore(name, gameState.score, gameState.elapsedMs);
       // Disable button/input after submission
       e.target.disabled = true;
       e.target.textContent = "Submitted!";
@@ -161,14 +168,16 @@ function handleGameOverClick(e) {
  * Saves a player's score to localStorage.
  * @param {string} name - Player name.
  * @param {number} score - Final score.
+ * @param {number} timeMs - Elapsed time in milliseconds (used as tiebreaker).
  */
-function saveScore(name, score) {
+function saveScore(name, score, timeMs) {
   const scores = JSON.parse(localStorage.getItem("leaderboard") || "[]");
-  scores.push({ name, score, date: new Date().toISOString() });
-  scores.sort((a, b) => b.score - a.score);
+  scores.push({ name, score, timeMs, date: new Date().toISOString() });
+  // Sort by score desc, then by time asc (faster = better) as tiebreaker
+  scores.sort((a, b) => b.score - a.score || (a.timeMs ?? Infinity) - (b.timeMs ?? Infinity));
   // Keep top 10
   localStorage.setItem("leaderboard", JSON.stringify(scores.slice(0, 10)));
-  console.log(`Score saved: ${name} — ${score}`);
+  console.log(`Score saved: ${name} — ${score} (${Math.floor(timeMs / 1000)}s)`);
 }
 
 /**
