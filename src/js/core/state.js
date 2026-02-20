@@ -105,21 +105,9 @@ export class GameState {
     return this.mode;
   }
 
-  // dtMs: milliseconds since last tick — used to advance time-based effects
-  update(dtMs = 0) {
-    // expire paddle sticky powerup if present
-    if (this.paddle && this.paddle.stickyExpires) {
-      if (performance.now() >= this.paddle.stickyExpires) {
-        this.paddle.setSticky(false);
-        this.paddle.stickyExpires = null;
-      }
-    }
-
-    if (this.timeStarted) this.elapsedMs = performance.now() - this.timeStarted;
-  }
 
   // Populate the singleton state from the currently-loaded level entities
-  resetForLevel(levelNumber = 1, DOM = null) {
+  resetForLevel(levelNumber = 1) {
     this.level = levelNumber;
     this.score = 0;
     this.lives = 3;
@@ -133,17 +121,10 @@ export class GameState {
 
     this.setEntities(balls, paddle, bricks);
 
-    if (DOM && DOM.container) {
-      this.setContainerSize(
-        DOM.container.clientWidth,
-        DOM.container.clientHeight,
-      );
-    } else {
-      const c =
-        typeof document !== "undefined" &&
-        document.getElementById("gameContainer");
-      if (c) this.setContainerSize(c.clientWidth, c.clientHeight);
-    }
+    const c =
+      typeof document !== "undefined" &&
+      document.getElementById("gameContainer");
+    if (c) this.setContainerSize(c.clientWidth, c.clientHeight);
 
     this.mode = "READY";
   }
@@ -151,9 +132,10 @@ export class GameState {
 
 export const gameState = new GameState();
 
-export function createGameState(DOM = null) {
+export function createGameState() {
   // convenience wrapper to initialize the singleton from the active level
   const level = getCurrentLevel();
-  gameState.resetForLevel(level || 1, DOM);
+  gameState.resetForLevel(level || 1);
+  gameState.setMode("RUNNING");
   return gameState;
 }

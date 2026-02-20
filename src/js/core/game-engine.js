@@ -5,24 +5,19 @@ import { gameState, createGameState } from "./state.js";
 
 let spaceHandler = null;
 
-export function startGame(DOM = null) {
-  createGameState(DOM);
-  gameState.setMode("RUNNING");
+export function startGame() {
+  createGameState();
   initInput();
   startLoop();
 }
 
-export function enterGameMode(DOM = null) {
-  // Remove any previously attached space handler to avoid duplicate listeners
-  if (spaceHandler) {
-    window.removeEventListener("keydown", spaceHandler);
-  }
+export function enterGameMode() {
   spaceHandler = function(e) {
     if (e.code === "Space") {
       const mode = gameState.getMode();
       // Only start the game if it hasn't been started yet
       if (mode !== "RUNNING" && mode !== "PAUSED") {
-        startGame(DOM);
+        startGame();
       }
       //control pause-resume
       if (mode === "RUNNING" || mode === "PAUSED") {
