@@ -1,6 +1,8 @@
 import { getInput } from "./inputs.js";
 import { gameState } from "../core/state.js";
 
+const SUBSTEPS = 5;
+
 // AABB collision (circle vs rect)
 function rectCircleCollision(rect, ball) {
   const closestX = Math.max(
@@ -54,16 +56,6 @@ function collisionInfo(rect, ball) {
   };
 }
 
-function reflectAxis(ball, axis) {
-  if (axis === "x") {
-    if (typeof ball.bounceX === "function") ball.bounceX();
-    else ball.speedX = -ball.speedX;
-  } else {
-    if (typeof ball.bounceY === "function") ball.bounceY();
-    else ball.speedY = -ball.speedY;
-  }
-}
-
 export function update(dt) {
   if (gameState.getMode() !== "RUNNING") return;
 
@@ -82,62 +74,29 @@ export function update(dt) {
 
   if (gameState.paddle) gameState.paddle.hitBorders(w);
 
+  // Iterate balls array (make a copy because we may modify it during loop)
   const balls = gameState.getBalls().slice();
 
   for (const ball of balls) {
-    // -------- SUB STEPPING --------
-    const maxStep = 1 / 240; // internal physics at 240hz
-    let remaining = dt;
+    const subDt = dt / SUBSTEPS;
+    let hitBottom = false;
 
-    while (remaining > 0) {
-      const step = Math.min(maxStep, remaining);
+    for (let step = 0; step < SUBSTEPS; step++) {
+      ball.move(subDt);
 
-      ball.move(step);
-
-      /* -------- WALL COLLISION -------- */
       const hit = ball.checkWallCollision(w, h);
       if (hit === "BOTTOM") {
-        gameState.removeBall(ball);
-        if (gameState.getBalls().length === 0) {
-          gameState.loseLife();
-          console.log("Ball lost! Lives remaining:", gameState.lives);
-        }
+        hitBottom = true;
         break;
       }
 
-      /* -------- PADDLE COLLISION -------- */
-      if (gameState.paddle) {
-        const pBounds = gameState.paddle.getBounds();
-        const paddleRect = {
-          x: pBounds.left,
-          y: pBounds.top,
-          width: pBounds.right - pBounds.left,
-          height: pBounds.bottom - pBounds.top,
-        };
-
-        if (rectCircleCollision(paddleRect, ball)) {
-          const info = collisionInfo(paddleRect, ball);
-
-          if (info.axis === "x") {
-            const penetration =
-              paddleRect.width / 2 + ball.radius - Math.abs(info.dx);
-
-            const sign = info.dx > 0 ? 1 : -1;
-            ball.x += sign * penetration;
-            ball.bounceX();
-          } else {
-            const penetration =
-              paddleRect.height / 2 + ball.radius - Math.abs(info.dy);
-
-            const sign = info.dy > 0 ? 1 : -1;
-            ball.y += sign * penetration;
-            ball.bounceY();
-          }
-        }
-      }
-
-      /* -------- BRICK COLLISION -------- */
+      // ---- Brick collisions ----
+      // Two-pass: scan first (no side effects), then act on one brick only.
       const bricks = gameState.getBricks();
+
+      // Pass 1: find the single closest colliding brick
+      let bestIndex = -1;
+      let bestDist = Infinity;
 
       for (let i = bricks.length - 1; i >= 0; i--) {
         const brick = bricks[i];
@@ -153,48 +112,131 @@ export function update(dt) {
 
         if (!rectCircleCollision(rect, ball)) continue;
 
+        const brickCX = b.left + (b.right - b.left) / 2;
+        const brickCY = b.top + (b.bottom - b.top) / 2;
+        const dist = Math.hypot(
+          ball.x + ball.radius - brickCX,
+          ball.y + ball.radius - brickCY,
+        );
+
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestIndex = i;
+        }
+      }
+
+      // Pass 2: process the single chosen brick
+      if (bestIndex !== -1) {
+        const brick = bricks[bestIndex];
+        const b = brick.getBounds();
+
         const destroyed = brick.hit();
 
         let pierced = false;
         if (ball.onBrickHit) {
-          const res = ball.onBrickHit(brick) || {};
-          pierced = !!res.pierced;
+          try {
+            const res = ball.onBrickHit(brick) || {};
+            pierced = !!res.pierced;
+          } catch (e) {
+            // ignore
+          }
         }
 
         gameState.addScore(brick.getScore());
 
         if (destroyed) {
-          bricks.splice(i, 1);
+          bricks.splice(bestIndex, 1);
         }
 
         if (!pierced) {
-          // ----- Penetration Resolution -----
           const ballCenterX = ball.x + ball.radius;
           const ballCenterY = ball.y + ball.radius;
-          const brickCenterX = rect.x + rect.width / 2;
-          const brickCenterY = rect.y + rect.height / 2;
+          const brickCenterX = b.left + (b.right - b.left) / 2;
+          const brickCenterY = b.top + (b.bottom - b.top) / 2;
 
           const dx = ballCenterX - brickCenterX;
           const dy = ballCenterY - brickCenterY;
 
-          const penetrationX = rect.width / 2 + ball.radius - Math.abs(dx);
-          const penetrationY = rect.height / 2 + ball.radius - Math.abs(dy);
+          const overlapX =
+            Math.abs(dx) - ((b.right - b.left) / 2 + ball.radius);
+          const overlapY =
+            Math.abs(dy) - ((b.bottom - b.top) / 2 + ball.radius);
 
-          if (penetrationX < penetrationY) {
-            const sign = dx > 0 ? 1 : -1;
-            ball.x += sign * penetrationX;
-            ball.bounceX();
+          if (Math.abs(overlapX) < Math.abs(overlapY)) {
+            if (typeof ball.bounceX === "function") ball.bounceX();
+            else ball.speedX = -ball.speedX;
+            ball.x +=
+              dx > 0 ? Math.abs(overlapX) + 1 : -(Math.abs(overlapX) + 1);
           } else {
-            const sign = dy > 0 ? 1 : -1;
-            ball.y += sign * penetrationY;
-            ball.bounceY();
+            if (typeof ball.bounceY === "function") ball.bounceY();
+            else ball.speedY = -ball.speedY;
+            ball.y +=
+              dy > 0 ? Math.abs(overlapY) + 1 : -(Math.abs(overlapY) + 1);
           }
 
-          break; // only one brick per sub-step
+          // Velocity changed — stop sub-stepping, paddle check runs next
+          break;
+        }
+        // pierced: continue sub-stepping through the brick
+      }
+    }
+
+    if (hitBottom) {
+      gameState.removeBall(ball);
+      if (gameState.getBalls().length === 0) {
+        gameState.loseLife();
+        console.log("Ball lost! Lives remaining:", gameState.lives);
+      }
+      continue;
+    }
+
+    // ---- Paddle collision (outside substep loop) ----
+
+    if (gameState.paddle) {
+      const pBounds = gameState.paddle.getBounds();
+      const paddleRect = rectFromBounds(pBounds);
+      if (rectCircleCollision(paddleRect, ball)) {
+        if (gameState.paddle.sticky) {
+          gameState.paddle.attachBall(ball, { force: true });
+        } else {
+          const info = collisionInfo(paddleRect, ball);
+          if (info.axis === "x") {
+            const maxYRatio = 0.8;
+            const speed = ball.getSpeed();
+
+            let hitPosY =
+              (info.ballCenterY - info.centerY) / (paddleRect.height / 2);
+            hitPosY = Math.max(-1, Math.min(1, hitPosY));
+
+            const paddleBottom = paddleRect.y + paddleRect.height;
+            const bottomBuffer = 30;
+            const maxYRatioEffective =
+              hitPosY > 0 && paddleBottom > h - bottomBuffer
+                ? Math.min(0.5, maxYRatio)
+                : maxYRatio;
+
+            const newSpeedY = hitPosY * speed * maxYRatioEffective;
+            const horizMag = Math.sqrt(
+              Math.max(1, speed * speed - newSpeedY * newSpeedY),
+            );
+            const horizSign = info.dx > 0 ? 1 : -1;
+
+            ball.speedX = horizSign * horizMag;
+            ball.speedY = newSpeedY;
+          } else {
+            let hitPos =
+              (ball.x + ball.radius - (paddleRect.x + paddleRect.width / 2)) /
+              (paddleRect.width / 2);
+            hitPos = Math.max(-1, Math.min(1, hitPos));
+            const speed = ball.getSpeed();
+            const maxXRatio = 0.8;
+            ball.speedX = hitPos * speed * maxXRatio;
+            ball.speedY = -Math.sqrt(
+              Math.max(1, speed * speed - ball.speedX * ball.speedX),
+            );
+          }
         }
       }
-
-      remaining -= step;
     }
   }
 }
