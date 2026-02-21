@@ -82,154 +82,119 @@ export function update(dt) {
 
   if (gameState.paddle) gameState.paddle.hitBorders(w);
 
-  // Iterate balls array (make a copy because we may modify it during loop)
   const balls = gameState.getBalls().slice();
+
   for (const ball of balls) {
-    ball.move(dt);
+    // -------- SUB STEPPING --------
+    const maxStep = 1 / 240; // internal physics at 240hz
+    let remaining = dt;
 
-    const hit = ball.checkWallCollision(w, h);
-    if (hit === "BOTTOM") {
-      // remove ball and handle life loss if no balls remain
-      gameState.removeBall(ball);
-      if (gameState.getBalls().length === 0) {
-        gameState.loseLife();
-        console.log("Ball lost! Lives remaining:", gameState.lives);
-        // TODO: respawn ball or reset level
+    while (remaining > 0) {
+      const step = Math.min(maxStep, remaining);
+
+      ball.move(step);
+
+      /* -------- WALL COLLISION -------- */
+      const hit = ball.checkWallCollision(w, h);
+      if (hit === "BOTTOM") {
+        gameState.removeBall(ball);
+        if (gameState.getBalls().length === 0) {
+          gameState.loseLife();
+          console.log("Ball lost! Lives remaining:", gameState.lives);
+        }
+        break;
       }
-      continue;
-    }
 
-    // paddle collision
-    if (gameState.paddle) {
-      const pBounds = gameState.paddle.getBounds();
-      const paddleRect = rectFromBounds(pBounds);
-      if (rectCircleCollision(paddleRect, ball)) {
-        if (gameState.paddle.sticky) {
-          gameState.paddle.attachBall(ball, { force: true });
-        } else {
+      /* -------- PADDLE COLLISION -------- */
+      if (gameState.paddle) {
+        const pBounds = gameState.paddle.getBounds();
+        const paddleRect = {
+          x: pBounds.left,
+          y: pBounds.top,
+          width: pBounds.right - pBounds.left,
+          height: pBounds.bottom - pBounds.top,
+        };
+
+        if (rectCircleCollision(paddleRect, ball)) {
           const info = collisionInfo(paddleRect, ball);
+
           if (info.axis === "x") {
-            // side hit: map vertical contact position to Y velocity so side
-            // hits can steer the ball up/down. Preserve overall speed
-            // magnitude roughly and nudge the ball outside the paddle.
-            const maxYRatio = 0.8; // max fraction of speed to assign to Y
-            const speed = ball.getSpeed();
+            const penetration =
+              paddleRect.width / 2 + ball.radius - Math.abs(info.dx);
 
-            // normalized vertical hit position: -1 (top) -> +1 (bottom)
-            let hitPosY =
-              (info.ballCenterY - info.centerY) / (paddleRect.height / 2);
-            hitPosY = Math.max(-1, Math.min(1, hitPosY));
-
-            // reduce downward component if paddle is close to bottom edge
-            const paddleBottom = paddleRect.y + paddleRect.height;
-            const bottomBuffer = 30; // px
-            const maxYRatioEffective =
-              hitPosY > 0 && paddleBottom > h - bottomBuffer
-                ? Math.min(0.5, maxYRatio)
-                : maxYRatio;
-
-            const newSpeedY = hitPosY * speed * maxYRatioEffective;
-
-            // compute horizontal magnitude preserving total speed
-            const horizMag = Math.sqrt(
-              Math.max(1, speed * speed - newSpeedY * newSpeedY),
-            );
-            const horizSign = info.dx > 0 ? 1 : -1; // away from paddle center
-
-            ball.speedX = horizSign * horizMag;
-            ball.speedY = newSpeedY;
-
-            // // nudge ball outside paddle horizontally so it won't re-collide this frame
-            // ball.x =
-            //   horizSign > 0
-            //     ? paddleRect.x + paddleRect.width
-            //     : paddleRect.x - ball.radius * 2;
+            const sign = info.dx > 0 ? 1 : -1;
+            ball.x += sign * penetration;
+            ball.bounceX();
           } else {
-            // top hit: clamp above and compute new velocity based on hit position
-            // ball.y = paddleRect.y - ball.radius * 2;
-            let hitPos =
-              (ball.x + ball.radius - (paddleRect.x + paddleRect.width / 2)) /
-              (paddleRect.width / 2);
-            hitPos = Math.max(-1, Math.min(1, hitPos));
-            const speed = ball.getSpeed();
-            const maxXRatio = 0.8;
-            ball.speedX = hitPos * speed * maxXRatio;
-            ball.speedY = -Math.sqrt(
-              Math.max(1, speed * speed - ball.speedX * ball.speedX),
-            );
+            const penetration =
+              paddleRect.height / 2 + ball.radius - Math.abs(info.dy);
+
+            const sign = info.dy > 0 ? 1 : -1;
+            ball.y += sign * penetration;
+            ball.bounceY();
           }
         }
       }
-    }
 
-    // TODO: brick collisions
-    // Brick collisions — iterate bricks and test collision against each active brick
-    const bricks = gameState.getBricks();
-    // iterate backwards so removals are safe
-    for (let i = bricks.length - 1; i >= 0; i--) {
-      const brick = bricks[i];
-      if (!brick || !brick.isActive || !brick.isActive()) continue;
+      /* -------- BRICK COLLISION -------- */
+      const bricks = gameState.getBricks();
 
-      const b = brick.getBounds();
-      const rect = {
-        x: b.left,
-        y: b.top,
-        width: b.right - b.left,
-        height: b.bottom - b.top,
-      };
+      for (let i = bricks.length - 1; i >= 0; i--) {
+        const brick = bricks[i];
+        if (!brick || !brick.isActive || !brick.isActive()) continue;
 
-      if (!rectCircleCollision(rect, ball)) continue;
+        const b = brick.getBounds();
+        const rect = {
+          x: b.left,
+          y: b.top,
+          width: b.right - b.left,
+          height: b.bottom - b.top,
+        };
 
-      const destroyed = brick.hit();
+        if (!rectCircleCollision(rect, ball)) continue;
 
-      // let ball handle pierce behaviour (returns { pierced: true } or similar)
-      let pierced = false;
-      if (ball.onBrickHit) {
-        try {
+        const destroyed = brick.hit();
+
+        let pierced = false;
+        if (ball.onBrickHit) {
           const res = ball.onBrickHit(brick) || {};
           pierced = !!res.pierced;
-        } catch (e) {
-          // ignore
+        }
+
+        gameState.addScore(brick.getScore());
+
+        if (destroyed) {
+          bricks.splice(i, 1);
+        }
+
+        if (!pierced) {
+          // ----- Penetration Resolution -----
+          const ballCenterX = ball.x + ball.radius;
+          const ballCenterY = ball.y + ball.radius;
+          const brickCenterX = rect.x + rect.width / 2;
+          const brickCenterY = rect.y + rect.height / 2;
+
+          const dx = ballCenterX - brickCenterX;
+          const dy = ballCenterY - brickCenterY;
+
+          const penetrationX = rect.width / 2 + ball.radius - Math.abs(dx);
+          const penetrationY = rect.height / 2 + ball.radius - Math.abs(dy);
+
+          if (penetrationX < penetrationY) {
+            const sign = dx > 0 ? 1 : -1;
+            ball.x += sign * penetrationX;
+            ball.bounceX();
+          } else {
+            const sign = dy > 0 ? 1 : -1;
+            ball.y += sign * penetrationY;
+            ball.bounceY();
+          }
+
+          break; // only one brick per sub-step
         }
       }
 
-      // award score
-      gameState.addScore(brick.getScore());
-
-      // if destroyed, remove from game state and call destroy() already called inside brick.hit()
-      if (destroyed) {
-        bricks.splice(i, 1);
-      }
-
-      // if the ball didn't pierce, reflect based on collision axis and stop checking more bricks
-      if (!pierced) {
-        // determine bounce axis by comparing penetration on X and Y
-        const ballCenterX = ball.x + ball.radius;
-        const ballCenterY = ball.y + ball.radius;
-        const brickCenterX = b.left + (b.right - b.left) / 2;
-        const brickCenterY = b.top + (b.bottom - b.top) / 2;
-
-        const dx = ballCenterX - brickCenterX;
-        const dy = ballCenterY - brickCenterY;
-
-        const overlapX = Math.abs(dx) - ((b.right - b.left) / 2 + ball.radius);
-        const overlapY = Math.abs(dy) - ((b.bottom - b.top) / 2 + ball.radius);
-
-        // whichever overlap is smaller (more negative) is the axis of collision
-        if (Math.abs(overlapX) < Math.abs(overlapY)) {
-          // reflect X
-          if (typeof ball.bounceX === "function") ball.bounceX();
-          else ball.speedX = -ball.speedX;
-        } else {
-          // reflect Y
-          if (typeof ball.bounceY === "function") ball.bounceY();
-          else ball.speedY = -ball.speedY;
-        }
-
-        // stop after first non-pierce collision for this ball
-        break;
-      }
-      // if pierced, continue checking other bricks
+      remaining -= step;
     }
   }
 }
