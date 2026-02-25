@@ -30,6 +30,24 @@ export function startLevel(levelNumber, DOM) {
   // Empty the entire game container and re-attach the bricks container element
   DOM.container.innerHTML = "";
 
+  // Re-attach the pause screen (innerHTML wipe removes it)
+  if (DOM.screens?.pause) {
+    DOM.screens.pause.classList.add("hidden");
+    DOM.container.appendChild(DOM.screens.pause);
+  }
+
+  // Re-attach the game-over screen (innerHTML wipe removes it)
+  if (DOM.screens?.gameOver) {
+    DOM.screens.gameOver.classList.add("hidden");
+    DOM.container.appendChild(DOM.screens.gameOver);
+  }
+
+  // Re-attach the win screen (innerHTML wipe removes it)
+  if (DOM.screens?.win) {
+    DOM.screens.win.classList.add("hidden");
+    DOM.container.appendChild(DOM.screens.win);
+  }
+
   // Reuse the existing bricksContainer reference if provided by main.js; otherwise create it
   if (!DOM.bricksContainer)
     DOM.bricksContainer = document.getElementById("bricksContainer");
@@ -86,6 +104,23 @@ export function startLevel(levelNumber, DOM) {
 
   DOM.levelDisplay.textContent = levelNumber;
   console.log(`Level ${levelNumber} loaded: ${currentBricks.length} bricks`);
+
+  // Reset game state for a fresh start
+  gameState.score = 0;
+  gameState.lives = 3;
+  gameState.elapsedMs = 0;
+  gameState.timeStarted = null;
+  gameState._readyAt = null;
+  gameState.setEntities(currentBall ? [currentBall] : [], currentPaddle, currentBricks);
+
+  // Update HUD immediately so stale values aren't visible before launch
+  if (DOM.scoreDisplay) DOM.scoreDisplay.textContent = "0";
+  if (DOM.timeDisplay) DOM.timeDisplay.textContent = "0:00";
+  if (DOM.livesDisplay) {
+    DOM.livesDisplay.innerHTML = Array(gameState.lives)
+      .fill('<span class="life">\u2665</span>')
+      .join("");
+  }
 
   // Reset mode so Space can start the game again
   gameState.setMode("READY");

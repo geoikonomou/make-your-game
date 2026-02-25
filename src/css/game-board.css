@@ -238,6 +238,199 @@
   }
 }
 
+/* Pause Screen */
+#pauseScreen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+  animation: pause-fade-in 0.2s ease-in;
+}
+
+.pause-menu {
+  text-align: center;
+}
+
+.pause-title {
+  font-family: "Press Start 2P", cursive;
+  font-size: 2.5rem;
+  color: var(--color-white);
+  margin-bottom: 2rem;
+  text-shadow: 0 0 20px var(--shadow-white-dark), 0 0 40px var(--shadow-white-light);
+}
+
+.pause-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.pause-buttons .menu-btn {
+  width: 250px;
+  font-size: 1.1rem;
+}
+
+@keyframes pause-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Game Over Screen */
+#gameOverScreen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+  animation: pause-fade-in 0.3s ease-in;
+}
+
+.game-over-menu {
+  text-align: center;
+}
+
+.game-over-title {
+  font-family: "Press Start 2P", cursive;
+  font-size: 2.5rem;
+  color: #ff4444;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 20px rgba(255, 68, 68, 0.6), 0 0 40px rgba(255, 68, 68, 0.3);
+}
+
+.game-over-score,
+.game-over-time {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.4rem;
+  color: var(--color-white);
+  margin-bottom: 1.5rem;
+}
+
+.game-over-score span,
+.game-over-time span {
+  color: #ffd700;
+  font-weight: 700;
+}
+
+.game-over-submit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.username-input {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1rem;
+  padding: 0.6rem 1rem;
+  width: 250px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-white);
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.username-input:focus {
+  border-color: #ffd700;
+}
+
+.username-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.game-over-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.game-over-buttons .menu-btn,
+.game-over-submit .menu-btn {
+  width: 250px;
+  font-size: 1.1rem;
+}
+
+/* Win Screen */
+#winScreen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+  animation: pause-fade-in 0.3s ease-in;
+}
+
+.win-menu {
+  text-align: center;
+}
+
+.win-title {
+  font-family: "Press Start 2P", cursive;
+  font-size: 2.2rem;
+  color: #4dff4d;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 20px rgba(77, 255, 77, 0.6), 0 0 40px rgba(77, 255, 77, 0.3);
+}
+
+.win-score,
+.win-time {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.4rem;
+  color: var(--color-white);
+  margin-bottom: 1.5rem;
+}
+
+.win-score span,
+.win-time span {
+  color: #ffd700;
+  font-weight: 700;
+}
+
+.win-submit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.win-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.win-buttons .menu-btn,
+.win-submit .menu-btn {
+  width: 250px;
+  font-size: 1.1rem;
+}
+
 /* Responsive */
 @media (width <=768px) {
   .scoreboard {

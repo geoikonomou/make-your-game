@@ -8,7 +8,13 @@ import {
 import { stopListeners } from "../core/game-engine.js";
 import { showScreen } from "./screen-controller.js";
 import { audioManager } from "../audio/audio-manager.js";
-// import { enterGameMode } from "../core/game-engine.js";
+import { setRenderDOM } from "../systems/render.js";
+import { gameState } from "../core/state.js";
+import { LEVELS } from "../config/level-config.js";
+import { initGameOverController, initWinController, initPauseController } from "./mode-controllers.js";
+/* ------------------------------------------------------------------ */
+/*  Main UI Setup                                                      */
+/* ------------------------------------------------------------------ */
 
 /**
  * Initializes all UI event listeners and binds user interactions
@@ -22,6 +28,15 @@ import { audioManager } from "../audio/audio-manager.js";
  * @param {Object} DOM.buttons
  */
 export function setupUI(DOM) {
+  // Provide HUD DOM references to the render system
+  setRenderDOM(DOM);
+
+  // Load saved high score on startup
+  if (DOM.highScoreDisplay) {
+    const stored = parseInt(localStorage.getItem("highScore") || "0", 10);
+    DOM.highScoreDisplay.textContent = stored;
+  }
+
   // --- Main Menu ---
   DOM.buttons.play.addEventListener("click", () => {
     startMusic();
@@ -88,17 +103,14 @@ export function setupUI(DOM) {
     DOM.buttons.volume.sfxValue,
   );
 
-  // --- Keyboard ---
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      stopListeners()
-      showScreen("menu", DOM);
-    }
-    if (e.key.toLowerCase() === "r") {
-      stopListeners()
-      startLevel(getCurrentLevel(), DOM);
-    }
-  });
+  // --- Pause controller (Esc overlay + R restart + button delegation) ---
+  initPauseController(DOM, () => startLevel(getCurrentLevel(), DOM));
+
+  // --- Game Over controller (button delegation) ---
+  initGameOverController();
+
+  // --- Win controller (button delegation) ---
+  initWinController();
 
   // --- Resize ---
   window.addEventListener("resize", () => handleResize(getCurrentLevel(), DOM));
