@@ -2,7 +2,10 @@ import { getInput } from "./inputs.js";
 import { gameState } from "../core/state.js";
 import { LevelSystem } from "./level-system.js";
 import { BRICK_TYPES } from "../config/brick-config.js";
-import { showGameOverScreen, showWinScreen } from "../controllers/mode-controllers.js";
+import {
+  showGameOverScreen,
+  showWinScreen,
+} from "../controllers/mode-controllers.js";
 
 /**
  * Respawn a new ball on the paddle after losing a life.
@@ -79,15 +82,15 @@ function collisionInfo(rect, ball) {
   };
 }
 
-function reflectAxis(ball, axis) {
-  if (axis === "x") {
-    if (typeof ball.bounceX === "function") ball.bounceX();
-    else ball.speedX = -ball.speedX;
-  } else {
-    if (typeof ball.bounceY === "function") ball.bounceY();
-    else ball.speedY = -ball.speedY;
-  }
-}
+// function reflectAxis(ball, axis) {
+//   if (axis === "x") {
+//     if (typeof ball.bounceX === "function") ball.bounceX();
+//     else ball.speedX = -ball.speedX;
+//   } else {
+//     if (typeof ball.bounceY === "function") ball.bounceY();
+//     else ball.speedY = -ball.speedY;
+//   }
+// }
 
 export function update(dt) {
   if (gameState.getMode() !== "RUNNING") return;

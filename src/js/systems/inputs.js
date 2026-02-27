@@ -1,9 +1,9 @@
 const keys = {};
 
-const arrowKeysDownHandler = function(e) {
+const arrowKeysDownHandler = function (e) {
   keys[e.code] = true;
 };
-const arrowKeysUpHandler = function(e) {
+const arrowKeysUpHandler = function (e) {
   keys[e.code] = false;
 };
 

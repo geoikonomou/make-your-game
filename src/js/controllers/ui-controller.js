@@ -9,9 +9,11 @@ import { stopListeners } from "../core/game-engine.js";
 import { showScreen } from "./screen-controller.js";
 import { audioManager } from "../audio/audio-manager.js";
 import { setRenderDOM } from "../systems/render.js";
-import { gameState } from "../core/state.js";
-import { LEVELS } from "../config/level-config.js";
-import { initGameOverController, initWinController, initPauseController } from "./mode-controllers.js";
+import {
+  initGameOverController,
+  initWinController,
+  initPauseController,
+} from "./mode-controllers.js";
 /* ------------------------------------------------------------------ */
 /*  Main UI Setup                                                      */
 /* ------------------------------------------------------------------ */
@@ -65,7 +67,7 @@ export function setupUI(DOM) {
 
   // --- Level buttons ---
   DOM.buttons.levelButtons.forEach((btn) => {
-    btn.addEventListener("click", function() {
+    btn.addEventListener("click", function () {
       const level = parseInt(this.dataset.level);
       showScreen("game", DOM);
       startLevel(level, DOM);
@@ -74,7 +76,7 @@ export function setupUI(DOM) {
 
   //back to menu buttons
   DOM.buttons.backtoMenuButtons.forEach((btn) => {
-    btn.addEventListener("click", function() {
+    btn.addEventListener("click", function () {
       showScreen("menu", DOM);
       stopListeners();
     });

@@ -167,10 +167,15 @@ function saveScore(name, score, timeMs) {
   const scores = JSON.parse(localStorage.getItem("leaderboard") || "[]");
   scores.push({ name, score, timeMs, date: new Date().toISOString() });
   // Sort by score desc, then by time asc (faster = better) as tiebreaker
-  scores.sort((a, b) => b.score - a.score || (a.timeMs ?? Infinity) - (b.timeMs ?? Infinity));
+  scores.sort(
+    (a, b) =>
+      b.score - a.score || (a.timeMs ?? Infinity) - (b.timeMs ?? Infinity),
+  );
   // Keep top 10
   localStorage.setItem("leaderboard", JSON.stringify(scores.slice(0, 10)));
-  console.log(`Score saved: ${name} — ${score} (${Math.floor(timeMs / 1000)}s)`);
+  console.log(
+    `Score saved: ${name} — ${score} (${Math.floor(timeMs / 1000)}s)`,
+  );
 }
 
 /**

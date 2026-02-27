@@ -105,7 +105,6 @@ export class GameState {
     return this.mode;
   }
 
-
   // Populate the singleton state from the currently-loaded level entities
   resetForLevel(levelNumber = 1) {
     this.level = levelNumber;

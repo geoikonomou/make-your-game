@@ -111,7 +111,11 @@ export function startLevel(levelNumber, DOM) {
   gameState.elapsedMs = 0;
   gameState.timeStarted = null;
   gameState._readyAt = null;
-  gameState.setEntities(currentBall ? [currentBall] : [], currentPaddle, currentBricks);
+  gameState.setEntities(
+    currentBall ? [currentBall] : [],
+    currentPaddle,
+    currentBricks,
+  );
 
   // Update HUD immediately so stale values aren't visible before launch
   if (DOM.scoreDisplay) DOM.scoreDisplay.textContent = "0";
