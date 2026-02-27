@@ -16,7 +16,7 @@ export function enterGameMode() {
   if (spaceHandler) {
     window.removeEventListener("keydown", spaceHandler);
   }
-  spaceHandler = function(e) {
+  spaceHandler = function (e) {
     if (e.code === "Space") {
       const mode = gameState.getMode();
       if (mode === "READY") {
@@ -34,7 +34,7 @@ export function enterGameMode() {
         }
       }
     }
-  }
+  };
   window.addEventListener("keydown", spaceHandler);
 }
 

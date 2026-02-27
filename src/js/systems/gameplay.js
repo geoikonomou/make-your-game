@@ -2,7 +2,10 @@ import { getInput } from "./inputs.js";
 import { gameState } from "../core/state.js";
 import { LevelSystem } from "./level-system.js";
 import { BRICK_TYPES } from "../config/brick-config.js";
-import { showGameOverScreen, showWinScreen } from "../controllers/mode-controllers.js";
+import {
+  showGameOverScreen,
+  showWinScreen,
+} from "../controllers/mode-controllers.js";
 
 /**
  * Respawn a new ball on the paddle after losing a life.

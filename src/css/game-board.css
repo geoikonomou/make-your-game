@@ -245,7 +245,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgb(0 0 0 / 75%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -263,7 +263,9 @@
   font-size: 2.5rem;
   color: var(--color-white);
   margin-bottom: 2rem;
-  text-shadow: 0 0 20px var(--shadow-white-dark), 0 0 40px var(--shadow-white-light);
+  text-shadow:
+    0 0 20px var(--shadow-white-dark),
+    0 0 40px var(--shadow-white-light);
 }
 
 .pause-buttons {
@@ -279,8 +281,13 @@
 }
 
 @keyframes pause-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* Game Over Screen */
@@ -290,7 +297,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgb(0 0 0 / 85%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -306,14 +313,16 @@
 .game-over-title {
   font-family: "Press Start 2P", cursive;
   font-size: 2.5rem;
-  color: #ff4444;
+  color: #f44;
   margin-bottom: 1.5rem;
-  text-shadow: 0 0 20px rgba(255, 68, 68, 0.6), 0 0 40px rgba(255, 68, 68, 0.3);
+  text-shadow:
+    0 0 20px rgb(255 68 68 / 60%),
+    0 0 40px rgb(255 68 68 / 30%);
 }
 
 .game-over-score,
 .game-over-time {
-  font-family: "Orbitron", sans-serif;
+  font-family: Orbitron, sans-serif;
   font-size: 1.4rem;
   color: var(--color-white);
   margin-bottom: 1.5rem;
@@ -334,13 +343,13 @@
 }
 
 .username-input {
-  font-family: "Orbitron", sans-serif;
+  font-family: Orbitron, sans-serif;
   font-size: 1rem;
   padding: 0.6rem 1rem;
   width: 250px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgb(255 255 255 / 30%);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgb(255 255 255 / 10%);
   color: var(--color-white);
   text-align: center;
   outline: none;
@@ -352,7 +361,7 @@
 }
 
 .username-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgb(255 255 255 / 40%);
 }
 
 .game-over-buttons {
@@ -375,7 +384,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgb(0 0 0 / 85%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -393,12 +402,14 @@
   font-size: 2.2rem;
   color: #4dff4d;
   margin-bottom: 1.5rem;
-  text-shadow: 0 0 20px rgba(77, 255, 77, 0.6), 0 0 40px rgba(77, 255, 77, 0.3);
+  text-shadow:
+    0 0 20px rgb(77 255 77 / 60%),
+    0 0 40px rgb(77 255 77 / 30%);
 }
 
 .win-score,
 .win-time {
-  font-family: "Orbitron", sans-serif;
+  font-family: Orbitron, sans-serif;
   font-size: 1.4rem;
   color: var(--color-white);
   margin-bottom: 1.5rem;
@@ -503,5 +514,164 @@
   .back-btn {
     width: 200px;
     font-size: 0.9rem;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+
+/*  Cutscene Screen (Story Mode)                                       */
+
+/* ------------------------------------------------------------------ */
+
+#cutsceneScreen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #000;
+  animation: cutscene-fade-in 0.6s ease-out;
+}
+
+.cutscene-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0a0a2e 0%, #1a1a4e 100%);
+  box-shadow:
+    0 0 40px rgb(100 100 255 / 30%),
+    0 0 80px rgb(100 100 255 / 10%);
+}
+
+.cutscene-image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #050520;
+  overflow: hidden;
+}
+
+.cutscene-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Gradient fallback shown when no image is available */
+.cutscene-image-fallback {
+  position: absolute;
+  inset: 0;
+  display: none;
+  background: linear-gradient(135deg, #1a0a3e 0%, #0a2a4e 50%, #0a3a2e 100%);
+}
+
+.cutscene-image-fallback.active {
+  display: block;
+}
+
+.cutscene-text-panel {
+  padding: 2rem 2.5rem;
+  text-align: center;
+}
+
+.cutscene-title {
+  font-family: "Press Start 2P", cursive;
+  font-size: 1.8rem;
+  color: #ffd700;
+  margin-bottom: 1.2rem;
+  text-shadow:
+    0 0 20px rgb(255 215 0 / 50%),
+    0 0 40px rgb(255 215 0 / 20%);
+  animation: cutscene-text-reveal 0.5s ease-out 0.3s both;
+}
+
+.cutscene-narrative {
+  font-family: Orbitron, sans-serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: rgb(255 255 255 / 85%);
+  margin-bottom: 2rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: cutscene-text-reveal 0.5s ease-out 0.5s both;
+}
+
+.cutscene-continue-btn {
+  animation: cutscene-text-reveal 0.4s ease-out 0.8s both;
+}
+
+@keyframes cutscene-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cutscene-fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes cutscene-text-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#cutsceneScreen.fade-out {
+  animation: cutscene-fade-out 0.4s ease-in forwards;
+}
+
+/* Responsive cutscene */
+@media (width <= 768px) {
+  .cutscene-panel {
+    max-width: 100%;
+    border-radius: 0;
+  }
+
+  .cutscene-title {
+    font-size: 1.3rem;
+  }
+
+  .cutscene-narrative {
+    font-size: 0.9rem;
+  }
+
+  .cutscene-text-panel {
+    padding: 1.5rem;
+  }
+}
+
+@media (width <= 480px) {
+  .cutscene-title {
+    font-size: 1rem;
+  }
+
+  .cutscene-narrative {
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+
+  .cutscene-text-panel {
+    padding: 1rem;
   }
 }

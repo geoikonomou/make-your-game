@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
       levels: document.getElementById("levelScreen"),
       options: document.getElementById("optionsScreen"),
       game: document.getElementById("gameScreen"),
+      cutscene: document.getElementById("cutsceneScreen"),
       pause: document.getElementById("pauseScreen"),
       gameOver: document.getElementById("gameOverScreen"),
       win: document.getElementById("winScreen"),
@@ -41,6 +42,13 @@ document.addEventListener("DOMContentLoaded", () => {
         musicValue: document.getElementById("musicValue"),
         sfxValue: document.getElementById("sfxValue"),
       },
+    },
+    cutscene: {
+      image: document.getElementById("cutsceneImage"),
+      imageFallback: document.getElementById("cutsceneImageFallback"),
+      title: document.getElementById("cutsceneTitle"),
+      narrative: document.getElementById("cutsceneNarrative"),
+      continueBtn: document.getElementById("cutsceneContinueBtn"),
     },
   };
   setupUI(DOM);

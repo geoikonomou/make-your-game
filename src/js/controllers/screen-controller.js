@@ -1,7 +1,7 @@
 /**
  * Displays a specific screen and hides all others.
  *
- * @param {"menu"|"levels"|"options"|"game"} screenName - Target screen key.
+ * @param {"menu"|"levels"|"options"|"game"|"cutscene"} screenName - Target screen key.
  * @param {Object} DOM - Centralized DOM reference object.
  */
 export function showScreen(screenName, DOM) {

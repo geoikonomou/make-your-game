@@ -11,6 +11,9 @@ export class GameState {
 
     this.container = { width: 0, height: 0 };
 
+    // Campaign / Story mode
+    this.campaignMode = false;
+
     // Entities
     this.paddle = null;
     // Primary ball kept for backward compatibility; balls[] is the authoritative list
@@ -104,7 +107,6 @@ export class GameState {
   getMode() {
     return this.mode;
   }
-
 
   // Populate the singleton state from the currently-loaded level entities
   resetForLevel(levelNumber = 1) {

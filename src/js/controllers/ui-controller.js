@@ -10,8 +10,12 @@ import { showScreen } from "./screen-controller.js";
 import { audioManager } from "../audio/audio-manager.js";
 import { setRenderDOM } from "../systems/render.js";
 import { gameState } from "../core/state.js";
-import { LEVELS } from "../config/level-config.js";
-import { initGameOverController, initWinController, initPauseController } from "./mode-controllers.js";
+import {
+  initGameOverController,
+  initWinController,
+  initPauseController,
+} from "./mode-controllers.js";
+import { initCutsceneController, showCutscene } from "./cutscene-controller.js";
 /* ------------------------------------------------------------------ */
 /*  Main UI Setup                                                      */
 /* ------------------------------------------------------------------ */
@@ -41,9 +45,11 @@ export function setupUI(DOM) {
   DOM.buttons.play.addEventListener("click", () => {
     startMusic();
     audioManager?.playSfx?.("gameStart");
-    showScreen("game", DOM);
-    startLevel(1, DOM);
-    // enterGameMode();
+    gameState.campaignMode = true;
+    showCutscene(1, DOM, () => {
+      showScreen("game", DOM);
+      startLevel(1, DOM);
+    });
   });
 
   DOM.buttons.selectLevel.addEventListener("click", () => {
@@ -63,10 +69,11 @@ export function setupUI(DOM) {
     toggleMute(DOM.buttons.mute),
   );
 
-  // --- Level buttons ---
+  // --- Level buttons (freeplay — no campaign) ---
   DOM.buttons.levelButtons.forEach((btn) => {
-    btn.addEventListener("click", function() {
+    btn.addEventListener("click", function () {
       const level = parseInt(this.dataset.level);
+      gameState.campaignMode = false;
       showScreen("game", DOM);
       startLevel(level, DOM);
     });
@@ -74,7 +81,8 @@ export function setupUI(DOM) {
 
   //back to menu buttons
   DOM.buttons.backtoMenuButtons.forEach((btn) => {
-    btn.addEventListener("click", function() {
+    btn.addEventListener("click", function () {
+      gameState.campaignMode = false;
       showScreen("menu", DOM);
       stopListeners();
     });
@@ -102,6 +110,9 @@ export function setupUI(DOM) {
     volumeControls.sfx,
     DOM.buttons.volume.sfxValue,
   );
+
+  // --- Cutscene controller (story mode panels) ---
+  initCutsceneController(DOM);
 
   // --- Pause controller (Esc overlay + R restart + button delegation) ---
   initPauseController(DOM, () => startLevel(getCurrentLevel(), DOM));
