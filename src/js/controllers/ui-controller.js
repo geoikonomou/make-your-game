@@ -14,6 +14,7 @@ import {
   initWinController,
   initPauseController,
 } from "./mode-controllers.js";
+import { getLeaderboard } from "../services/api-service.js";
 /* ------------------------------------------------------------------ */
 /*  Main UI Setup                                                      */
 /* ------------------------------------------------------------------ */
@@ -35,8 +36,13 @@ export function setupUI(DOM) {
 
   // Load saved high score on startup
   if (DOM.highScoreDisplay) {
-    const stored = parseInt(localStorage.getItem("highScore") || "0", 10);
-    DOM.highScoreDisplay.textContent = stored;
+    getLeaderboard()
+      .then((scores) => {
+        DOM.highScoreDisplay.textContent = scores.length ? scores[0].score : 0;
+      })
+      .catch(() => {
+        DOM.highScoreDisplay.textContent = 0;
+      });
   }
 
   // --- Main Menu ---
