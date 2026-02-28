@@ -15,6 +15,7 @@ import {
   initPauseController,
 } from "./mode-controllers.js";
 import { getLeaderboard } from "../services/api-service.js";
+import { gameState } from "../core/state.js";
 /* ------------------------------------------------------------------ */
 /*  Main UI Setup                                                      */
 /* ------------------------------------------------------------------ */
@@ -38,10 +39,12 @@ export function setupUI(DOM) {
   if (DOM.highScoreDisplay) {
     getLeaderboard()
       .then((scores) => {
-        DOM.highScoreDisplay.textContent = scores.length ? scores[0].score : 0;
+        const best = scores.length ? scores[0].score : 0;
+        gameState.highScore = best; // ← this is what render.js reads
+        DOM.highScoreDisplay.textContent = best;
       })
       .catch(() => {
-        DOM.highScoreDisplay.textContent = 0;
+        gameState.highScore = 0;
       });
   }
 
