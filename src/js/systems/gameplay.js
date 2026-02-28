@@ -132,10 +132,9 @@ export function update(dt) {
           respawnBall();
         } else {
           // Game over — save high score
-          const stored = parseInt(localStorage.getItem("highScore") || "0", 10);
-          if (gameState.score > stored) {
-            localStorage.setItem("highScore", gameState.score.toString());
-          }
+          // High score persistence is now handled by the Go API.
+          // showGameOverScreen() will fetch and render the leaderboard;
+          // the player submits their name there to save the score.
           gameState.setMode("GAME_OVER");
           showGameOverScreen();
           console.log("GAME OVER! Final score:", gameState.score);
@@ -285,10 +284,9 @@ export function update(dt) {
   );
   if (!breakableLeft) {
     // Save high score
-    const stored = parseInt(localStorage.getItem("highScore") || "0", 10);
-    if (gameState.score > stored) {
-      localStorage.setItem("highScore", gameState.score.toString());
-    }
+    // High score persistence is now handled by the Go API.
+    // showWinScreen() will fetch and render the leaderboard;
+    // the player submits their name there to save the score.
     gameState.setMode("PAUSED");
     showWinScreen();
     console.log(`Level ${gameState.level} complete! Score: ${gameState.score}`);
