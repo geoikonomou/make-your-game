@@ -9,7 +9,9 @@
   background: rgb(0 0 0 / 85%);
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  padding: 1.5rem 1rem;
+  overflow-y: auto;
   z-index: 100;
   backdrop-filter: blur(4px);
   animation: pause-fade-in 0.3s ease-in;
