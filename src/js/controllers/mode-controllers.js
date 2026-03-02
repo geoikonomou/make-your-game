@@ -85,7 +85,7 @@ export async function renderLeaderboard(containerEl, submitted = null) {
   let submittedPercentile = null;
   if (submitted) {
     const match = scores.find(
-      (s) => s.name === submitted.name && s.score === submitted.score,
+      (s) => s.name === submitted.name && s.score === submitted.score && s.timeMs === submitted.timeMs,
     );
     if (match) {
       submittedRank = match.rank;
