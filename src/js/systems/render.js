@@ -68,19 +68,20 @@ export function render() {
       }
       hudDOM.livesDisplay.innerHTML = hearts.join("");
     }
-    // update DOM transform for powerups (positions are advanced in gameplay update)
-    try {
-      const active = powerupSystem._getActive ? powerupSystem._getActive() : [];
-      for (const p of active) {
-        if (p && typeof p.updatePosition === "function") p.updatePosition();
-      }
-    } catch (e) {
-      // don't let render break if powerups fail
-      // eslint-disable-next-line no-console
-      console.error("powerup render updatePosition error", e);
-    }
-
-    if (gameState.getMode() === "PAUSED") {
-      // pause overlay or similar
-    }
   }
+  // update DOM transform for powerups (positions are advanced in gameplay update)
+  try {
+    const active = powerupSystem._getActive ? powerupSystem._getActive() : [];
+    for (const p of active) {
+      if (p && typeof p.updatePosition === "function") p.updatePosition();
+    }
+  } catch (e) {
+    // don't let render break if powerups fail
+    // eslint-disable-next-line no-console
+    console.error("powerup render updatePosition error", e);
+  }
+
+  if (gameState.getMode() === "PAUSED") {
+    // pause overlay or similar
+  }
+}
