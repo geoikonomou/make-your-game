@@ -64,15 +64,11 @@ export const LEVELS = {
 
   5: {
     name: "Test Level",
-    layout: [
-      [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    ],
+    layout: [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0]],
   },
 
   6: {
     name: "One Block",
-    layout: [
-      [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    ],
+    layout: [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0]],
   },
 };

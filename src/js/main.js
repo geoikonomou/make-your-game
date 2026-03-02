@@ -22,9 +22,9 @@ document.addEventListener("DOMContentLoaded", () => {
       levels: document.getElementById("levelScreen"),
       options: document.getElementById("optionsScreen"),
       game: document.getElementById("gameScreen"),
-      pause: document.getElementById("pauseScreen"),
-      gameOver: document.getElementById("gameOverScreen"),
-      win: document.getElementById("winScreen"),
+      pause: document.getElementById("pause-screen"),
+      gameOver: document.getElementById("game-over-screen"),
+      win: document.getElementById("win-screen"),
     },
     buttons: {
       play: document.getElementById("playBtn"),
