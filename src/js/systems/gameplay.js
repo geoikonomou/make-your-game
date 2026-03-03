@@ -362,6 +362,7 @@ export function update(dt) {
 
         if (gameState.lives > 0) {
           // Respawn a new ball on the paddle
+          powerupSystem.revertAllPowerUps();
           respawnBall();
         } else {
           // Game over — save high score

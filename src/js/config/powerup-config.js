@@ -56,7 +56,7 @@ export const POWERUP_CONFIG = {
     label: "Paddle Expand",
     description: "Increase paddle width for a short time",
     category: "timed",
-    durationMs: 15000,
+    durationMs: 10000,
     weight: 9,
     iconClass: "powerup--expand",
   },
@@ -91,13 +91,14 @@ export const POWERUP_CONFIG = {
 
 // global spawning & behavior settings
 export const POWERUP_SPAWN_SETTINGS = {
-  baseDropChance: 0.4, // 10% base chance that a destroyed brick will drop a powerup
+  baseDropChance: 1, // 10% base chance that a destroyed brick will drop a powerup
   perBrickTypeModifiers: {
     [BRICK_TYPES.NORMAL]: 1, // normal bricks: 10% * 1 = 10%
     [BRICK_TYPES.HARD]: 1.5, // hard bricks: 10% * 1.5 = 15%
     [BRICK_TYPES.UNBREAKABLE]: 0, // unbreakable: never drop
   },
-  maxSimultaneousPowerups: 5, // avoid screen clutter
+  maxSimultaneousPowerups: 2, // avoid screen clutter
+  maxSimultaneousActivePowerups: 3, // avoid screen clutter
   fallSpeedPxPerSec: 120, // how fast powerups fall
   autoExpireIfUncollectedMs: 15000, // remove powerup if not collected
 };

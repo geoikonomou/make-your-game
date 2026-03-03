@@ -4,6 +4,7 @@ import { showScreen } from "./screen-controller.js";
 import { startLevel, getCurrentLevel } from "./level-controller.js";
 import { LEVELS } from "../config/level-config.js";
 import { submitScore, getLeaderboard } from "../services/api-service.js";
+import powerupSystem from "../systems/powerup-system.js";
 
 /* ------------------------------------------------------------------ */
 /*  Shared DOM + restart reference                                     */
@@ -120,16 +121,16 @@ export async function renderLeaderboard(containerEl, submitted = null) {
         <thead><tr><th>Rank</th><th>Name</th><th>Score</th><th>Time</th></tr></thead>
         <tbody>
           ${pageScores
-            .map(
-              (s) => `
+        .map(
+          (s) => `
             <tr class="${submitted && s.name === submitted.name && s.score === submitted.score ? "lb-row-highlight" : ""}">
               <td>${ordinal(s.rank)}</td>
               <td>${escHtml(s.name)}</td>
               <td>${s.score.toLocaleString()}</td>
               <td>${s.time}</td>
             </tr>`,
-            )
-            .join("")}
+        )
+        .join("")}
         </tbody>
       </table>`;
 
@@ -298,6 +299,7 @@ export function initPauseController(DOM, restartFn) {
  * the current leaderboard. No row is highlighted until the player submits.
  */
 export function showGameOverScreen() {
+  powerupSystem.revertAllPowerUps();
   if (!_DOM?.screens?.gameOver) return;
 
   document.getElementById("finalScore").textContent = gameState.score;
@@ -366,6 +368,7 @@ export function initGameOverController() {
  * Hides the "Next Level" button when on the last level.
  */
 export function showWinScreen() {
+  powerupSystem.revertAllPowerUps();
   if (!_DOM?.screens?.win) return;
 
   document.getElementById("winFinalScore").textContent = gameState.score;

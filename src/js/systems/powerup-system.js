@@ -111,7 +111,7 @@ registerHandler(POWERUP_TYPES.BOMB, ({ getCurrentBricks }, powerup) => {
     if (dx * dx + dy * dy <= radius * radius) {
       try {
         b.destroy();
-      } catch (e) {}
+      } catch (e) { }
       bricks.splice(i, 1);
       gameState.addScore(b.getScore());
     }
@@ -124,12 +124,13 @@ registerHandler(POWERUP_TYPES.PADDLE_EXPAND, ({ getCurrentPaddle, cfg }) => {
   const prevWidth = paddle.width;
   const factor = Number(cfg.expandFactor) || 1.5;
   const newWidth = Math.round(prevWidth * factor);
+  const paddlediff = newWidth - prevWidth;
   paddle.setWidth(newWidth);
   return {
     durationMs: cfg.durationMs || 15000,
     revert: () => {
       const p = getCurrentPaddle();
-      if (p) p.setWidth(prevWidth);
+      if (p) p.setWidth(paddle.width - paddlediff);
     },
   };
 });
@@ -247,7 +248,12 @@ export const powerupSystem = {
     if (!brick || !brick.getBounds) return null;
     if (
       activePowerups.length >=
-      (POWERUP_SPAWN_SETTINGS.maxSimultaneousPowerups || 5)
+      (POWERUP_SPAWN_SETTINGS.maxSimultaneousPowerups || 2)
+    )
+      return null;
+    if (
+      activeTimedEffects.length >=
+      (POWERUP_SPAWN_SETTINGS.maxSimultaneousActivePowerups || 3)
     )
       return null;
     const chance = getDropChance(brick.type);
@@ -258,6 +264,16 @@ export const powerupSystem = {
     const x = b.centerX - (POWERUP_CONFIG[picked].sizePx || 28) / 2;
     const y = b.bottom;
     return spawnPowerup(picked, x, y);
+  },
+  revertAllPowerUps() {
+    for (const powerUp of activeTimedEffects) {
+      powerUp.revert();
+    }
+    activeTimedEffects.length = 0;
+    for (const powerUp of activePowerups) {
+      powerUp.remove();
+    }
+    activePowerups.length = 0;
   },
   spawnPowerup(type, x, y) {
     return spawnPowerup(type, x, y);
