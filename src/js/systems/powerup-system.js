@@ -114,7 +114,6 @@ registerHandler(POWERUP_TYPES.PADDLE_EXPAND, ({ getCurrentPaddle, cfg }) => {
 registerHandler(POWERUP_TYPES.STICKY_PADDLE, ({ getCurrentPaddle, cfg }) => {
   const paddle = getCurrentPaddle();
   if (!paddle) return null;
-  console.log(performance.now());
   if (!paddle.sticky) {
     paddle.setSticky(true);
   }
@@ -123,7 +122,6 @@ registerHandler(POWERUP_TYPES.STICKY_PADDLE, ({ getCurrentPaddle, cfg }) => {
     durationMs: cfg.durationMs || 15000,
     revert: () => {
       const paddle = getCurrentPaddle();
-      console.log(performance.now());
       paddle.stickyEffects -= 1;
       if (paddle.stickyEffects === 0) {
         paddle.setSticky(false);
@@ -149,7 +147,6 @@ registerHandler(POWERUP_TYPES.SLOW_BALL, ({ cfg }) => {
     durationMs: cfg.durationMs || 10000,
     revert: () => {
       const newballs = getCurrentBalls();
-      console.log(balls);
       for (const ball of newballs) {
         ball.speedX *= (1 / factor)
         ball.speedY *= (1 / factor)

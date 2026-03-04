@@ -192,7 +192,6 @@ export function handleResize(levelNumber, DOM) {
 
     // Recalculate brick layout for new container width
     const layout = BrickLayoutSystem.calculate(DOM.container.clientWidth, cols);
-    console.log("this is the container width", DOM.container.clientWidth);
 
     // Update all bricks with new layout
     currentBricks.forEach((brick) => {

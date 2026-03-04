@@ -119,7 +119,6 @@ export class Paddle {
 
   setSticky(enabled) {
     this.sticky = Boolean(enabled);
-    console.log(this.sticky, performance.now());
   }
 
   setWidth(widthPx) {
