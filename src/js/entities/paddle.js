@@ -24,8 +24,8 @@ export class Paddle {
     this.config =
       PADDLE_CONFIG[this.type] || PADDLE_CONFIG[DEFAULT_PADDLE_TYPE];
     this.sticky = Boolean(sticky || this.config.sticky);
-    this.attachedBall = null;
-    this.stickyExpires = null;
+    this.attachedBalls = [];
+    this.stickyEffects = 0;
 
     this.element = this.createElement();
     this.updatePosition();
@@ -83,54 +83,57 @@ export class Paddle {
 
   hitBorders(containerWidth) {
     this.x = Math.max(0, Math.min(containerWidth - this.width, this.x));
-    if (this.attachedBall) {
-      const b = this.attachedBall;
-      b.x = this.x + (this.width - b.radius * 2) / 2;
+    for (const b of this.attachedBalls) {
+      b.x = this.x + b.stickypaddleOffsetX;
       b.y = this.y - b.radius * 2 - 2;
     }
   }
 
   attachBall(ball, { force = false } = {}) {
     if (!force && !this.sticky) return false;
-    if (this.attachedBall) return false;
-    this.attachedBall = ball;
+    if (this.attachedBalls.includes(ball)) return false;
+    this.attachedBalls.push(ball);
     ball.attachedTo = this;
-    ball.offsetX = ball.x - this.x;
+    ball.stickypaddleOffsetX = ball.x - this.x;
     ball.speedX = 0;
     ball.speedY = 0;
     return true;
   }
 
-  releaseBall({ baseSpeed = 360, maxXRatio = 0.8 } = {}) {
-    if (!this.attachedBall) return null;
-    const ball = this.attachedBall;
-    this.attachedBall = null;
-    ball.attachedTo = null;
-
-    const hitPos =
-      (ball.x + ball.radius - (this.x + this.width / 2)) / (this.width / 2);
-    ball.speedX = hitPos * baseSpeed * maxXRatio;
-    ball.speedY = -Math.sqrt(
-      Math.max(1, baseSpeed * baseSpeed - ball.speedX * ball.speedX),
-    );
-    return ball;
+  releaseBall(containerH, speedMultiplier) {
+    const baseSpeed = containerH * 0.7 * speedMultiplier;
+    if (this.attachedBalls.length === 0) return [];
+    const released = [];
+    for (const ball of this.attachedBalls) {
+      ball.attachedTo = null;
+      const hitPos = Math.max(
+        -0.7,
+        Math.min(
+          0.7,
+          (ball.x + ball.radius - (this.x + this.width / 2)) / (this.width / 2),
+        ),
+      );
+      ball.speedX = hitPos * baseSpeed;
+      ball.speedY = -Math.sqrt(
+        Math.max(1, baseSpeed * baseSpeed - ball.speedX * ball.speedX),
+      );
+      released.push(ball);
+    }
+    this.attachedBalls = [];
+    return released;
   }
 
-  setSticky(enabled, durationMs = null) {
+  setSticky(enabled) {
     this.sticky = Boolean(enabled);
-    if (this.sticky && typeof durationMs === "number" && durationMs > 0) {
-      this.stickyExpires = performance.now() + durationMs;
-      // i think that is redundant we'll have to check later
-      // } else if (this.sticky) {
-      //   this.stickyExpires = null;
-    } else {
-      this.stickyExpires = null;
-    }
   }
 
   setWidth(widthPx) {
     this.width = widthPx;
     this.element.style.width = `${widthPx}px`;
+  }
+  changeWidth(factor) {
+    this.width *= factor;
+    this.element.style.width = `${this.width}px`;
   }
 
   setHeight(heightPx) {
@@ -163,8 +166,7 @@ export class Paddle {
 
     this.sticky = Boolean(cfg.sticky);
 
-    if (this.attachedBall) {
-      const b = this.attachedBall;
+    for (const b of this.attachedBalls) {
       b.x = this.x + (this.width - b.radius * 2) / 2;
       b.y = this.y - b.radius * 2 - 2;
     }

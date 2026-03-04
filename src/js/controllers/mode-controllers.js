@@ -4,6 +4,7 @@ import { showScreen } from "./screen-controller.js";
 import { startLevel, getCurrentLevel } from "./level-controller.js";
 import { LEVELS } from "../config/level-config.js";
 import { submitScore, getLeaderboard } from "../services/api-service.js";
+import powerupSystem from "../systems/powerup-system.js";
 
 /* ------------------------------------------------------------------ */
 /*  Shared DOM + restart reference                                     */
@@ -85,7 +86,10 @@ export async function renderLeaderboard(containerEl, submitted = null) {
   let submittedPercentile = null;
   if (submitted) {
     const match = scores.find(
-      (s) => s.name === submitted.name && s.score === submitted.score && s.timeMs === submitted.timeMs,
+      (s) =>
+        s.name === submitted.name &&
+        s.score === submitted.score &&
+        s.timeMs === submitted.timeMs,
     );
     if (match) {
       submittedRank = match.rank;
@@ -295,6 +299,7 @@ export function initPauseController(DOM, restartFn) {
  * the current leaderboard. No row is highlighted until the player submits.
  */
 export function showGameOverScreen() {
+  powerupSystem.revertAllPowerUps();
   if (!_DOM?.screens?.gameOver) return;
 
   document.getElementById("finalScore").textContent = gameState.score;
@@ -363,6 +368,7 @@ export function initGameOverController() {
  * Hides the "Next Level" button when on the last level.
  */
 export function showWinScreen() {
+  powerupSystem.revertAllPowerUps();
   if (!_DOM?.screens?.win) return;
 
   document.getElementById("winFinalScore").textContent = gameState.score;

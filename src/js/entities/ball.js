@@ -19,6 +19,7 @@ export class Ball {
 
     this.pierceRemaining = this.config.pierce || 0;
     this.attachedTo = null;
+    this.stickypaddleOffsetX = 0;
 
     this.element = this.createElement();
     this.updatePosition();
@@ -54,7 +55,7 @@ export class Ball {
   move(dt) {
     if (this.attachedTo) {
       const paddle = this.attachedTo;
-      this.x = paddle.x + (paddle.width - this.radius * 2) / 2;
+      this.x = paddle.x + this.stickypaddleOffsetX;
       this.y = paddle.y - this.radius * 2 - 2;
       return;
     }

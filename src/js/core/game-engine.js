@@ -2,6 +2,7 @@ import { initInput } from "../systems/inputs.js";
 import { startLoop, stopLoop } from "./loop.js";
 import { stopGameInputListeners } from "../systems/inputs.js";
 import { gameState, createGameState } from "./state.js";
+import { LevelSystem } from "../systems/level-system.js";
 
 let spaceHandler = null;
 
@@ -31,6 +32,14 @@ export function enterGameMode() {
             gameState._readyAt = null;
           }
           gameState.setMode("RUNNING");
+        }
+      } else if (mode === "RUNNING") {
+        if (gameState.paddle.attachedBalls.length > 0) {
+          const speedMultiplier = LevelSystem.getGlobalSpeedMultiplier();
+          gameState.paddle.releaseBall(
+            gameState.container.height,
+            speedMultiplier,
+          );
         }
       }
     }

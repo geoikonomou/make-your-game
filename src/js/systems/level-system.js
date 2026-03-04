@@ -23,6 +23,8 @@ import {
  * - Creating Paddle and Ball entities
  * - Providing level metadata utilities
  */
+let globalspeedMutliplier = 0;
+globalspeedMutliplier = BALL_CONFIG[DEFAULT_BALL_TYPE].speedMultiplier;
 export class LevelSystem {
   /**
    * Get level data by level number
@@ -65,7 +67,6 @@ export class LevelSystem {
    * @returns {Ball} Newly created Ball instance.
    */
   static createBall(paddle, containerH, type = DEFAULT_BALL_TYPE) {
-    const cfg = BALL_CONFIG[type] || BALL_CONFIG[DEFAULT_BALL_TYPE];
     const radius = Math.max(3, Math.round(containerH * 0.012));
 
     // Position ball centered on paddle, slightly above it
@@ -73,7 +74,7 @@ export class LevelSystem {
     const y = Math.floor(paddle.y - radius * 2 - DEFAULT_BALL_FROM_PADDLE);
 
     // base speed (px/sec) and slight random angle for variation
-    const baseSpeed = containerH * 0.7 * (cfg.speedMultiplier || 1);
+    const baseSpeed = containerH * 0.7 * (globalspeedMutliplier || 1);
     const angle = -Math.PI / 4 + (Math.random() - 0.5) * 0.3;
     const speedX = Math.cos(angle) * baseSpeed;
     const speedY = Math.sin(angle) * baseSpeed;
@@ -189,6 +190,13 @@ export class LevelSystem {
     });
 
     return count;
+  }
+
+  static changeGlobalSpeedMultiplier(factor) {
+    globalspeedMutliplier *= factor;
+  }
+  static getGlobalSpeedMultiplier() {
+    return globalspeedMutliplier;
   }
 
   /**

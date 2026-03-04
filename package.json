@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/geoikonomou/make-your-game#readme",
   "devDependencies": {
-    "eslint": "^8.57.0",
+    "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
