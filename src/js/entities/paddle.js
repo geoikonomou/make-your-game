@@ -25,6 +25,7 @@ export class Paddle {
       PADDLE_CONFIG[this.type] || PADDLE_CONFIG[DEFAULT_PADDLE_TYPE];
     this.sticky = Boolean(sticky || this.config.sticky);
     this.attachedBalls = [];
+    this.stickyEffects = 0;
 
     this.element = this.createElement();
     this.updatePosition();

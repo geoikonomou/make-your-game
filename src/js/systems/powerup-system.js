@@ -38,6 +38,7 @@ function pickWeightedPowerup() {
 }
 
 const handlers = new Map();
+
 function registerHandler(type, fn) {
   handlers.set(type, fn);
 }
@@ -113,12 +114,20 @@ registerHandler(POWERUP_TYPES.PADDLE_EXPAND, ({ getCurrentPaddle, cfg }) => {
 registerHandler(POWERUP_TYPES.STICKY_PADDLE, ({ getCurrentPaddle, cfg }) => {
   const paddle = getCurrentPaddle();
   if (!paddle) return null;
-  paddle.setSticky(true);
+  console.log(performance.now());
+  if (!paddle.sticky) {
+    paddle.setSticky(true);
+  }
+  paddle.stickyEffects += 1;
   return {
     durationMs: cfg.durationMs || 15000,
     revert: () => {
       const paddle = getCurrentPaddle();
-      paddle.setSticky(false);
+      console.log(performance.now());
+      paddle.stickyEffects -= 1;
+      if (paddle.stickyEffects === 0) {
+        paddle.setSticky(false);
+      }
     },
   };
 });
