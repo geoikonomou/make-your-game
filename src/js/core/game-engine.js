@@ -2,6 +2,7 @@ import { initInput } from "../systems/inputs.js";
 import { startLoop, stopLoop } from "./loop.js";
 import { stopGameInputListeners } from "../systems/inputs.js";
 import { gameState, createGameState } from "./state.js";
+import { LevelSystem } from "../systems/level-system.js";
 
 let spaceHandler = null;
 
@@ -16,7 +17,7 @@ export function enterGameMode() {
   if (spaceHandler) {
     window.removeEventListener("keydown", spaceHandler);
   }
-  spaceHandler = function(e) {
+  spaceHandler = function (e) {
     if (e.code === "Space") {
       const mode = gameState.getMode();
       if (mode === "READY") {
@@ -34,7 +35,11 @@ export function enterGameMode() {
         }
       } else if (mode === "RUNNING") {
         if (gameState.paddle.attachedBalls.length > 0) {
-          gameState.paddle.releaseBall();
+          const speedMultiplier = LevelSystem.getGlobalSpeedMultiplier();
+          gameState.paddle.releaseBall(
+            gameState.container.height,
+            speedMultiplier,
+          );
         }
       }
     }

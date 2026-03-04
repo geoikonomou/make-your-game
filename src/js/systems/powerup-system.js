@@ -148,8 +148,8 @@ registerHandler(POWERUP_TYPES.SLOW_BALL, ({ cfg }) => {
     revert: () => {
       const newballs = getCurrentBalls();
       for (const ball of newballs) {
-        ball.speedX *= (1 / factor)
-        ball.speedY *= (1 / factor)
+        ball.speedX *= 1 / factor;
+        ball.speedY *= 1 / factor;
       }
       LevelSystem.changeGlobalSpeedMultiplier(1 / factor);
     },

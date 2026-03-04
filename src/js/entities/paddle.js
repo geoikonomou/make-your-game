@@ -100,13 +100,19 @@ export class Paddle {
     return true;
   }
 
-  releaseBall(baseSpeed = 360) {
+  releaseBall(containerH, speedMultiplier) {
+    const baseSpeed = containerH * 0.7 * speedMultiplier;
     if (this.attachedBalls.length === 0) return [];
     const released = [];
     for (const ball of this.attachedBalls) {
       ball.attachedTo = null;
-      const hitPos =
-        (ball.x + ball.radius - (this.x + this.width / 2)) / (this.width / 2);
+      const hitPos = Math.max(
+        -0.7,
+        Math.min(
+          0.7,
+          (ball.x + ball.radius - (this.x + this.width / 2)) / (this.width / 2),
+        ),
+      );
       ball.speedX = hitPos * baseSpeed;
       ball.speedY = -Math.sqrt(
         Math.max(1, baseSpeed * baseSpeed - ball.speedX * ball.speedX),

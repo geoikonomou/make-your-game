@@ -121,16 +121,16 @@ export async function renderLeaderboard(containerEl, submitted = null) {
         <thead><tr><th>Rank</th><th>Name</th><th>Score</th><th>Time</th></tr></thead>
         <tbody>
           ${pageScores
-        .map(
-          (s) => `
+            .map(
+              (s) => `
             <tr class="${submitted && s.name === submitted.name && s.score === submitted.score ? "lb-row-highlight" : ""}">
               <td>${ordinal(s.rank)}</td>
               <td>${escHtml(s.name)}</td>
               <td>${s.score.toLocaleString()}</td>
               <td>${s.time}</td>
             </tr>`,
-        )
-        .join("")}
+            )
+            .join("")}
         </tbody>
       </table>`;
 

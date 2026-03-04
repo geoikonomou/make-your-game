@@ -24,7 +24,7 @@ import {
  * - Providing level metadata utilities
  */
 let globalspeedMutliplier = 0;
-globalspeedMutliplier = BALL_CONFIG[DEFAULT_BALL_TYPE].speedMultiplier
+globalspeedMutliplier = BALL_CONFIG[DEFAULT_BALL_TYPE].speedMultiplier;
 export class LevelSystem {
   /**
    * Get level data by level number
@@ -195,6 +195,10 @@ export class LevelSystem {
   static changeGlobalSpeedMultiplier(factor) {
     globalspeedMutliplier *= factor;
   }
+  static getGlobalSpeedMultiplier() {
+    return globalspeedMutliplier;
+  }
+
   /**
    * Get the maximum number of columns in a level
    * @param {number} levelNumber - The level number

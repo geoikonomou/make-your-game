@@ -11,7 +11,7 @@ export const DEFAULT_BALL_TYPE = BALL_TYPES.NORMAL;
 
 export const BALL_CONFIG = {
   [BALL_TYPES.NORMAL]: {
-    speedMultiplier: 1.0,
+    speedMultiplier: 0.5,
     radius: 6,
     pierce: 0,
     spawn: 0,

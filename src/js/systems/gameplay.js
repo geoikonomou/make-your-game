@@ -246,6 +246,40 @@ export function update(dt) {
 
       // handle collision
       if (earliest.type === "paddle") {
+        // When t=0, ball is already overlapping - push it out first
+        if (earliest.t === 0) {
+          const pBounds = gameState.paddle.getBounds();
+
+          const ballLeft = ball.x;
+          const ballRight = ball.x + radius * 2;
+          const ballTop = ball.y;
+          const ballBottom = ball.y + radius * 2;
+
+          const overlapLeft = ballRight - pBounds.left;
+          const overlapRight = pBounds.right - ballLeft;
+          const overlapTop = ballBottom - pBounds.top;
+          const overlapBottom = pBounds.bottom - ballTop;
+
+          const minOverlapX = Math.min(overlapLeft, overlapRight);
+          const minOverlapY = Math.min(overlapTop, overlapBottom);
+
+          if (minOverlapX < minOverlapY) {
+            const pushX =
+              overlapLeft < overlapRight
+                ? -overlapLeft - 0.5
+                : overlapRight + 0.5;
+            ball.x += pushX;
+          } else {
+            const pushY =
+              overlapTop < overlapBottom
+                ? -overlapTop - 0.5
+                : overlapBottom + 0.5;
+            ball.y += pushY;
+          }
+
+          curCenter = { x: ball.x + radius, y: ball.y + radius };
+        }
+
         const pBounds = gameState.paddle.getBounds();
         const paddleRect = rectFromBounds(pBounds);
         if (gameState.paddle.sticky) {

@@ -58,7 +58,7 @@ export const POWERUP_CONFIG = {
     description: "Ball sticks to paddle on contact for a time",
     category: "timed",
     durationMs: 12000,
-    weight: 1,
+    weight: 9,
     iconClass: "powerup--sticky",
   },
 
@@ -68,14 +68,14 @@ export const POWERUP_CONFIG = {
     description: "Reduce ball speed temporarily for easier control",
     category: "timed",
     durationMs: 10000,
-    weight: 1,
+    weight: 9,
     iconClass: "powerup--slow",
   },
 };
 
 // global spawning & behavior settings
 export const POWERUP_SPAWN_SETTINGS = {
-  baseDropChance: 0.07, // 10% base chance that a destroyed brick will drop a powerup
+  baseDropChance: 1, // 10% base chance that a destroyed brick will drop a powerup
   perBrickTypeModifiers: {
     [BRICK_TYPES.NORMAL]: 1, // normal bricks: 10% * 1 = 10%
     [BRICK_TYPES.HARD]: 1.5, // hard bricks: 10% * 1.5 = 15%
