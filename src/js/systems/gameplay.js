@@ -252,7 +252,7 @@ export function update(dt) {
           gameState.paddle.attachBall(ball, { force: true });
           // attach consumes the ball; stop processing further movement
           remaining = 0;
-          break;
+          continue;
         } else {
           // reuse existing collision handling but compute based on contact
           const info = collisionInfo(paddleRect, ball);

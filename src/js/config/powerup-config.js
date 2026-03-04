@@ -29,7 +29,7 @@ export const POWERUP_CONFIG = {
     category: "instant",
     bonusPoints: 500,
     durationMs: 0,
-    weight: 9,
+    weight: 0,
     iconClass: "powerup--score",
   },
 
@@ -39,7 +39,7 @@ export const POWERUP_CONFIG = {
     description: "Spawn additional balls from the paddle",
     category: "instant",
     durationMs: 0,
-    weight: 0,
+    weight: 9,
     iconClass: "powerup--multi",
   },
 
@@ -58,7 +58,7 @@ export const POWERUP_CONFIG = {
     description: "Ball sticks to paddle on contact for a time",
     category: "timed",
     durationMs: 12000,
-    weight: 0,
+    weight: 9,
     iconClass: "powerup--sticky",
   },
 

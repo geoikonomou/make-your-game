@@ -24,7 +24,7 @@ export class Paddle {
     this.config =
       PADDLE_CONFIG[this.type] || PADDLE_CONFIG[DEFAULT_PADDLE_TYPE];
     this.sticky = Boolean(sticky || this.config.sticky);
-    this.attachedBalls = [];
+    this.attachedBall = null;
 
     this.element = this.createElement();
     this.updatePosition();
@@ -82,43 +82,42 @@ export class Paddle {
 
   hitBorders(containerWidth) {
     this.x = Math.max(0, Math.min(containerWidth - this.width, this.x));
-    for (const b of this.attachedBalls) {
-      b.x = this.x + b.stickypaddleOffsetX;
+    if (this.attachedBall) {
+      const b = this.attachedBall;
+      b.x = this.x + (this.width - b.radius * 2) / 2;
       b.y = this.y - b.radius * 2 - 2;
     }
   }
 
   attachBall(ball, { force = false } = {}) {
     if (!force && !this.sticky) return false;
-    if (this.attachedBalls.includes(ball)) return false;
-    this.attachedBalls.push(ball);
+    if (this.attachedBall) return false;
+    this.attachedBall = ball;
     ball.attachedTo = this;
-    ball.stickypaddleOffsetX = ball.x - this.x;
+    ball.offsetX = ball.x - this.x;
     ball.speedX = 0;
     ball.speedY = 0;
     return true;
   }
 
-  releaseBall(baseSpeed = 360) {
-    if (this.attachedBalls.length === 0) return [];
-    const released = [];
-    for (const ball of this.attachedBalls) {
-      ball.attachedTo = null;
-      const hitPos =
-        (ball.x + ball.radius - (this.x + this.width / 2)) / (this.width / 2);
-      ball.speedX = hitPos * baseSpeed;
-      ball.speedY = -Math.sqrt(
-        Math.max(1, baseSpeed * baseSpeed - ball.speedX * ball.speedX),
-      );
-      released.push(ball);
-    }
-    this.attachedBalls = [];
-    return released;
+  releaseBall({ baseSpeed = 360, maxXRatio = 0.8 } = {}) {
+    if (!this.attachedBall) return null;
+    const ball = this.attachedBall;
+    this.attachedBall = null;
+    ball.attachedTo = null;
+
+    const hitPos =
+      (ball.x + ball.radius - (this.x + this.width / 2)) / (this.width / 2);
+    ball.speedX = hitPos * baseSpeed * maxXRatio;
+    ball.speedY = -Math.sqrt(
+      Math.max(1, baseSpeed * baseSpeed - ball.speedX * ball.speedX),
+    );
+    return ball;
   }
 
   setSticky(enabled) {
-    this.sticky = Boolean(enabled);
     console.log(this.sticky, performance.now());
+    this.sticky = Boolean(enabled);
   }
 
   setWidth(widthPx) {
@@ -160,7 +159,8 @@ export class Paddle {
 
     this.sticky = Boolean(cfg.sticky);
 
-    for (const b of this.attachedBalls) {
+    if (this.attachedBall) {
+      const b = this.attachedBall;
       b.x = this.x + (this.width - b.radius * 2) / 2;
       b.y = this.y - b.radius * 2 - 2;
     }

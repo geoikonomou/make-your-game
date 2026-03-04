@@ -113,13 +113,12 @@ registerHandler(POWERUP_TYPES.PADDLE_EXPAND, ({ getCurrentPaddle, cfg }) => {
 registerHandler(POWERUP_TYPES.STICKY_PADDLE, ({ getCurrentPaddle, cfg }) => {
   const paddle = getCurrentPaddle();
   if (!paddle) return null;
-  const dur = cfg.durationMs || 12000;
-  paddle.setSticky(true, dur);
+  paddle.setSticky(true);
   return {
     durationMs: cfg.durationMs || 15000,
     revert: () => {
       const paddle = getCurrentPaddle();
-      paddle.setSticky(false, dur);
+      paddle.setSticky(false);
     },
   };
 });

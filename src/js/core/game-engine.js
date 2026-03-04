@@ -16,7 +16,7 @@ export function enterGameMode() {
   if (spaceHandler) {
     window.removeEventListener("keydown", spaceHandler);
   }
-  spaceHandler = function (e) {
+  spaceHandler = function(e) {
     if (e.code === "Space") {
       const mode = gameState.getMode();
       if (mode === "READY") {
@@ -31,6 +31,10 @@ export function enterGameMode() {
             gameState._readyAt = null;
           }
           gameState.setMode("RUNNING");
+        }
+      } else if (mode === "RUNNING") {
+        if (gameState.paddle.attachedBalls.length > 0) {
+          gameState.paddle.releaseBall();
         }
       }
     }
