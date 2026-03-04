@@ -96,41 +96,16 @@ registerHandler(POWERUP_TYPES.MULTI_BALL, ({ getCurrentPaddle }) => {
   }
 });
 
-registerHandler(POWERUP_TYPES.BOMB, ({ getCurrentBricks }, powerup) => {
-  const bricks = getCurrentBricks();
-  if (!bricks || bricks.length === 0) return;
-  const radius = powerup.cfg.blastRadiusPx || 80;
-  const centerX = powerup.x + powerup.size / 2;
-  const centerY = powerup.y + powerup.size / 2;
-  for (let i = bricks.length - 1; i >= 0; i--) {
-    const b = bricks[i];
-    if (!b || !b.isActive || !b.isActive()) continue;
-    const bb = b.getBounds();
-    const dx = bb.centerX - centerX;
-    const dy = bb.centerY - centerY;
-    if (dx * dx + dy * dy <= radius * radius) {
-      try {
-        b.destroy();
-      } catch (e) { }
-      bricks.splice(i, 1);
-      gameState.addScore(b.getScore());
-    }
-  }
-});
-
 registerHandler(POWERUP_TYPES.PADDLE_EXPAND, ({ getCurrentPaddle, cfg }) => {
   const paddle = getCurrentPaddle();
   if (!paddle) return null;
-  const prevWidth = paddle.width;
   const factor = Number(cfg.expandFactor) || 1.5;
-  const newWidth = Math.round(prevWidth * factor);
-  const paddlediff = newWidth - prevWidth;
-  paddle.setWidth(newWidth);
+  paddle.changeWidth(factor);
   return {
     durationMs: cfg.durationMs || 15000,
     revert: () => {
       const p = getCurrentPaddle();
-      if (p) p.setWidth(paddle.width - paddlediff);
+      if (p) p.changeWidth(1 / factor);
     },
   };
 });
@@ -140,39 +115,38 @@ registerHandler(POWERUP_TYPES.STICKY_PADDLE, ({ getCurrentPaddle, cfg }) => {
   if (!paddle) return null;
   const dur = cfg.durationMs || 12000;
   paddle.setSticky(true, dur);
-  return null;
+  return {
+    durationMs: cfg.durationMs || 15000,
+    revert: () => {
+      const paddle = getCurrentPaddle();
+      paddle.setSticky(false, dur);
+    },
+  };
 });
 
 function getCurrentBalls() {
   return gameState.getBalls ? gameState.getBalls() : [];
 }
 
-registerHandler(POWERUP_TYPES.BALL_PIERCE, ({ cfg }) => {
-  const balls = getCurrentBalls();
-  if (!balls || balls.length === 0) return;
-  const add = Number(cfg.pierceHits) || 3;
-  for (const b of balls) b.pierceRemaining = (b.pierceRemaining || 0) + add;
-});
-
 registerHandler(POWERUP_TYPES.SLOW_BALL, ({ cfg }) => {
   const balls = getCurrentBalls();
   if (!balls || balls.length === 0) return null;
   const factor = Number(cfg.slowFactor) || 0.6;
-  const prev = [];
+  LevelSystem.changeGlobalSpeedMultiplier(factor);
   for (const b of balls) {
-    prev.push({ ball: b, speedX: b.speedX, speedY: b.speedY });
     b.speedX *= factor;
     b.speedY *= factor;
   }
   return {
     durationMs: cfg.durationMs || 10000,
     revert: () => {
-      for (const p of prev) {
-        if (p.ball) {
-          p.ball.speedX = p.speedX;
-          p.ball.speedY = p.speedY;
-        }
+      const newballs = getCurrentBalls();
+      console.log(balls);
+      for (const ball of newballs) {
+        ball.speedX *= (1 / factor)
+        ball.speedY *= (1 / factor)
       }
+      LevelSystem.changeGlobalSpeedMultiplier(1 / factor);
     },
   };
 });

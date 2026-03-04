@@ -132,6 +132,10 @@ export class Paddle {
     this.width = widthPx;
     this.element.style.width = `${widthPx}px`;
   }
+  changeWidth(factor) {
+    this.width *= factor;
+    this.element.style.width = `${this.width}px`;
+  }
 
   setHeight(heightPx) {
     this.height = heightPx;

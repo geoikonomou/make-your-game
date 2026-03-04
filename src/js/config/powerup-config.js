@@ -12,7 +12,7 @@ export const POWERUP_TYPES = {
 };
 
 export const POWERUP_CONFIG = {
-  // instant effects
+  //ready
   [POWERUP_TYPES.EXTRA_LIFE]: {
     label: "Extra Life",
     description: "Grants one additional life immediately",
@@ -22,16 +22,18 @@ export const POWERUP_CONFIG = {
     iconClass: "powerup--life",
   },
 
+  //ready
   [POWERUP_TYPES.SCORE_BONUS]: {
     label: "Score Bonus",
     description: "Award immediate bonus points",
     category: "instant",
     bonusPoints: 500,
     durationMs: 0,
-    weight: 0,
+    weight: 9,
     iconClass: "powerup--score",
   },
 
+  //ready
   [POWERUP_TYPES.MULTI_BALL]: {
     label: "Multi Ball",
     description: "Spawn additional balls from the paddle",
@@ -41,23 +43,13 @@ export const POWERUP_CONFIG = {
     iconClass: "powerup--multi",
   },
 
-  [POWERUP_TYPES.BOMB]: {
-    label: "Bomb",
-    description: "Destroy nearby bricks instantly",
-    category: "instant",
-    blastRadiusPx: 80,
-    durationMs: 0,
-    weight: 0,
-    iconClass: "powerup--bomb",
-  },
-
-  // timed effects (systems must manage expiry)
+  //ready
   [POWERUP_TYPES.PADDLE_EXPAND]: {
     label: "Paddle Expand",
     description: "Increase paddle width for a short time",
     category: "timed",
     durationMs: 10000,
-    weight: 9,
+    weight: 0,
     iconClass: "powerup--expand",
   },
 
@@ -70,15 +62,7 @@ export const POWERUP_CONFIG = {
     iconClass: "powerup--sticky",
   },
 
-  [POWERUP_TYPES.BALL_PIERCE]: {
-    label: "Piercing Ball",
-    description: "Balls can pass through multiple bricks for a time",
-    category: "timed",
-    durationMs: 10000,
-    weight: 0,
-    iconClass: "powerup--pierce",
-  },
-
+  //ready
   [POWERUP_TYPES.SLOW_BALL]: {
     label: "Slow Ball",
     description: "Reduce ball speed temporarily for easier control",
