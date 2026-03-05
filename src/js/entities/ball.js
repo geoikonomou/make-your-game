@@ -82,7 +82,7 @@ export class Ball {
     this.speedY = launchSpeedY;
   }
 
-  onBrickHit(brick) {
+  onBrickHit() {
     if (this.pierceRemaining > 0) {
       this.pierceRemaining--;
       return { pierced: true };

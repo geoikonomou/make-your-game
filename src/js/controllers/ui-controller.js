@@ -9,12 +9,13 @@ import { stopListeners } from "../core/game-engine.js";
 import { showScreen } from "./screen-controller.js";
 import { audioManager } from "../audio/audio-manager.js";
 import { setRenderDOM } from "../systems/render.js";
-import { gameState } from "../core/state.js";
 import {
   initGameOverController,
   initWinController,
   initPauseController,
 } from "./mode-controllers.js";
+import { getLeaderboard } from "../services/api-service.js";
+import { gameState } from "../core/state.js";
 import { initCutsceneController, showCutscene } from "./cutscene-controller.js";
 /* ------------------------------------------------------------------ */
 /*  Main UI Setup                                                      */
@@ -37,8 +38,15 @@ export function setupUI(DOM) {
 
   // Load saved high score on startup
   if (DOM.highScoreDisplay) {
-    const stored = parseInt(localStorage.getItem("highScore") || "0", 10);
-    DOM.highScoreDisplay.textContent = stored;
+    getLeaderboard()
+      .then((scores) => {
+        const best = scores.length ? scores[0].score : 0;
+        gameState.highScore = best; // ← this is what render.js reads
+        DOM.highScoreDisplay.textContent = best;
+      })
+      .catch(() => {
+        gameState.highScore = 0;
+      });
   }
 
   // --- Main Menu ---

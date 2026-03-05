@@ -48,9 +48,7 @@ export function render() {
 
     // High score
     if (hudDOM.highScoreDisplay) {
-      const stored = parseInt(localStorage.getItem("highScore") || "0", 10);
-      const best = Math.max(stored, gameState.score);
-      hudDOM.highScoreDisplay.textContent = best;
+      hudDOM.highScoreDisplay.textContent = gameState.highScore ?? 0;
     }
 
     // Timer

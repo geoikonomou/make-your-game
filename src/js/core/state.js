@@ -25,6 +25,8 @@ export class GameState {
     this.level = 1;
     this.score = 0;
     this.lives = 3;
+    // populated from API on startup, kept in sync after each submit
+    this.highScore = 0;
 
     // Timing
     this.timeStarted = null;
