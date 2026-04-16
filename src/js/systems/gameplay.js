@@ -100,6 +100,17 @@ export function update(dt) {
 
   const keys = getInput();
 
+  // Secret cheat: hold Shift + K + I to instantly win the level (testing only)
+  if (keys["ShiftLeft"] && keys["KeyK"] && keys["KeyI"]) {
+    const bricks = gameState.getBricks();
+    for (const brick of bricks) {
+      if (brick.isActive() && brick.type !== BRICK_TYPES.UNBREAKABLE) {
+        brick.destroy();
+      }
+    }
+    return; // the next frame's win check will trigger showWinScreen
+  }
+
   /* -------- Paddle Movement -------- */
   if ((keys["ArrowLeft"] || keys["KeyW"]) && gameState.paddle) {
     gameState.paddle.moveLeft(dt);
