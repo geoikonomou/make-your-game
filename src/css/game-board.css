@@ -512,7 +512,7 @@
 
 /* ------------------------------------------------------------------ */
 
-#cutscene-screen {
+[id="cutsceneScreen"] {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -626,7 +626,7 @@
   }
 }
 
-#cutscene-screen.fade-out {
+[id="cutsceneScreen"].fade-out {
   animation: cutscene-fade-out 0.4s ease-in forwards;
 }
 
