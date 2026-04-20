@@ -1,6 +1,6 @@
-#game-over-screen,
-#win-screen,
-#pause-screen {
+[id="gameOverScreen"],
+[id="winScreen"],
+[id="pauseScreen"] {
   position: absolute;
   top: 0;
   left: 0;
