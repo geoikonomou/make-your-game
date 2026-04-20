@@ -2,10 +2,13 @@ import { getInput } from "./inputs.js";
 import { gameState } from "../core/state.js";
 import { LevelSystem } from "./level-system.js";
 import { BRICK_TYPES } from "../config/brick-config.js";
+import { audioManager } from "../audio/audio-manager.js";
 import {
   showGameOverScreen,
   showWinScreen,
 } from "../controllers/mode-controllers.js";
+
+const paddleCollisionBalls = new WeakSet();
 
 /**
  * Respawn a new ball on the paddle after losing a life.
@@ -136,6 +139,7 @@ export function update(dt) {
       gameState.removeBall(ball);
       if (gameState.getBalls().length === 0) {
         gameState.loseLife();
+        audioManager.playSfx("loseLife");
         console.log("Ball lost! Lives remaining:", gameState.lives);
 
         if (gameState.lives > 0) {
@@ -158,7 +162,18 @@ export function update(dt) {
     if (gameState.paddle) {
       const pBounds = gameState.paddle.getBounds();
       const paddleRect = rectFromBounds(pBounds);
-      if (rectCircleCollision(paddleRect, ball)) {
+      const hitPaddle = rectCircleCollision(paddleRect, ball);
+
+      if (!hitPaddle) {
+        paddleCollisionBalls.delete(ball);
+      }
+
+      if (hitPaddle) {
+        if (!paddleCollisionBalls.has(ball)) {
+          audioManager.playSfx("paddleHit");
+          paddleCollisionBalls.add(ball);
+        }
+
         if (gameState.paddle.sticky) {
           gameState.paddle.attachBall(ball, { force: true });
         } else {
@@ -235,6 +250,8 @@ export function update(dt) {
 
       if (!rectCircleCollision(rect, ball)) continue;
 
+      audioManager.playSfx("brickHit");
+
       const destroyed = brick.hit();
 
       // let ball handle pierce behaviour (returns { pierced: true } or similar)
@@ -299,6 +316,7 @@ export function update(dt) {
     // showWinScreen() will fetch and render the leaderboard;
     // the player submits their name there to save the score.
     gameState.setMode("PAUSED");
+    audioManager.playSfx("levelComplete");
     showWinScreen();
     console.log(`Level ${gameState.level} complete! Score: ${gameState.score}`);
   }

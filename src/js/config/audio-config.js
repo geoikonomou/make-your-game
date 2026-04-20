@@ -13,6 +13,10 @@ export const audioConfig = {
   sfx: {
     click: `${BASE_PATH}sfx/menu_interaction.mp3`,
     gameStart: `${BASE_PATH}sfx/menu_play_game.mp3`,
+    paddleHit: `${BASE_PATH}sfx/paddle_hit.mp3`,
+    brickHit: `${BASE_PATH}sfx/brick_hit.wav`,
+    loseLife: `${BASE_PATH}sfx/lose_life.wav`,
+    levelComplete: `${BASE_PATH}sfx/level_complete.wav`,
   },
   defaults: {
     masterVolume: 70,
