@@ -5,6 +5,7 @@ import { startLevel, getCurrentLevel } from "./level-controller.js";
 import { LEVELS } from "../config/level-config.js";
 import { showCutscene } from "./cutscene-controller.js";
 import { submitScore, getLeaderboard } from "../services/api-service.js";
+import { playMenuMusic } from "./audio-controller.js";
 
 /* ------------------------------------------------------------------ */
 /*  Shared DOM + restart reference                                     */
@@ -260,6 +261,7 @@ function handlePauseButtonClick(e) {
     case "backToMenuBtn":
       hidePauseScreen();
       gameState.campaignMode = false;
+      playMenuMusic();
       showScreen("menu", _DOM);
       stopListeners();
       break;
@@ -346,6 +348,7 @@ function handleGameOverClick(e) {
     case "goBackToMenuBtn":
       hideGameOverScreen();
       gameState.campaignMode = false;
+      playMenuMusic();
       showScreen("menu", _DOM);
       stopListeners();
       break;
@@ -436,6 +439,7 @@ function handleWinClick(e) {
         stopListeners();
         showCutscene("complete", _DOM, () => {
           gameState.campaignMode = false;
+          playMenuMusic();
           showScreen("menu", _DOM);
         });
       } else if (gameState.campaignMode) {
@@ -458,6 +462,7 @@ function handleWinClick(e) {
     case "winBackToMenuBtn":
       hideWinScreen();
       gameState.campaignMode = false;
+      playMenuMusic();
       showScreen("menu", _DOM);
       stopListeners();
       break;

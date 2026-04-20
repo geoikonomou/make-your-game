@@ -1,5 +1,6 @@
 import { STORY } from "../config/story-config.js";
 import { showScreen } from "./screen-controller.js";
+import { playLevelMusic } from "./audio-controller.js";
 
 /**
  * Cutscene Controller
@@ -80,6 +81,11 @@ export function showCutscene(levelKey, DOM, onComplete) {
       els.image.style.display = "none";
       els.imageFallback.classList.add("active");
     }
+  }
+
+  // Play the level's soundtrack when a numbered level cutscene appears
+  if (typeof levelKey === "number") {
+    playLevelMusic(levelKey);
   }
 
   // Store callback

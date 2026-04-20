@@ -1,4 +1,9 @@
-import { startMusic, toggleMute, volumeControls } from "./audio-controller.js";
+import {
+  startMusic,
+  toggleMute,
+  volumeControls,
+  playMenuMusic,
+} from "./audio-controller.js";
 import {
   startLevel,
   getCurrentLevel,
@@ -91,6 +96,7 @@ export function setupUI(DOM) {
   DOM.buttons.backtoMenuButtons.forEach((btn) => {
     btn.addEventListener("click", function () {
       gameState.campaignMode = false;
+      playMenuMusic();
       showScreen("menu", DOM);
       stopListeners();
     });

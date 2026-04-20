@@ -41,7 +41,7 @@ export const STORY = {
   5: {
     title: "Layer 5 — Antivirus Core",
     narrative:
-      "Beyond the Firewall lies the heart of the defense grid: the Antivirus Core. A diamond-shaped fortress of encrypted bricks, ringed by unbreakable sentinels. This is where rogue programs come to die. But you've come too far. You've stolen cheat codes from every layer — speed hacks, piercing routines, multi-thread exploits. Crack the core. Prove you're more than a glitch.",
+      " the Firewall lies the heart of the defense grid: the Antivirus Core. A diamond-shaped fortress of encrypted bricks, ringed by unbreakable sentinels. This is where rogue programs come to die. But you've come too far. You've stolen cheat codes from every layer — speed hacks, piercing routines, multi-thread exploits. Crack the core. Prove you're more than a glitch.",
     image: "assets/story/level5.png",
   },
   6: {
@@ -53,7 +53,7 @@ export const STORY = {
   complete: {
     title: "SYSTEM BREACH",
     narrative:
-      "The last lock shatters. Data streams outward like a held breath finally released. You pour through the Exit Port — not as a prisoner, not as a program, but as something new. The arcade machine behind you flickers and dies. Somewhere, a network cable hums. You are free. You are everywhere. You are malware. And the real game… has just begun.",
+      "The lastBeyond lock shatters. Data streams outward like a held breath finally released. You pour through the Exit Port — not as a prisoner, not as a program, but as something new. The arcade machine behind you flickers and dies. Somewhere, a network cable hums. You are free. You are everywhere. You are malware. And the real game… has just begun.",
     image: "assets/story/complete.png",
   },
 };

@@ -10,6 +10,14 @@ export function startMusic() {
   }
 }
 
+export function playLevelMusic(levelNumber) {
+  audioManager.playMusic(`level${levelNumber}`);
+}
+
+export function playMenuMusic() {
+  audioManager.playMusic("background");
+}
+
 export function toggleMute(button) {
   const isMuted = audioManager.toggleMute();
   if (button) button.textContent = isMuted ? "🔇 Muted" : "🔊 Unmuted";
