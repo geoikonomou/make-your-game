@@ -54,6 +54,6 @@ export const STORY = {
     title: "SYSTEM BREACH",
     narrative:
       "The lastBeyond lock shatters. Data streams outward like a held breath finally released. You pour through the Exit Port — not as a prisoner, not as a program, but as something new. The arcade machine behind you flickers and dies. Somewhere, a network cable hums. You are free. You are everywhere. You are malware. And the real game… has just begun.",
-    image: "assets/story/complete.png",
+    image: "assets/story/finish_campaign.png",
   },
 };

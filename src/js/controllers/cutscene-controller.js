@@ -83,9 +83,10 @@ export function showCutscene(levelKey, DOM, onComplete) {
     }
   }
 
-  // Play the level's soundtrack when a numbered level cutscene appears
-  if (typeof levelKey === "number") {
-    playLevelMusic(levelKey);
+  // Play the level soundtrack for numeric keys (number or numeric string)
+  const normalizedLevel = Number(levelKey);
+  if (Number.isInteger(normalizedLevel) && normalizedLevel > 0) {
+    playLevelMusic(normalizedLevel);
   }
 
   // Store callback
